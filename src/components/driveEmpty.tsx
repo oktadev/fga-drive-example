@@ -1,0 +1,13 @@
+import { TableCell, TableRow } from "@/components/ui/table";
+import { DriveTable } from "@/components/driveTable";
+
+
+export function DriveEmpty() {
+    return (
+      <DriveTable>
+        <TableRow>
+          <TableCell>No files</TableCell>
+        </TableRow>
+      </DriveTable>
+    );
+  }
