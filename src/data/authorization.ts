@@ -1,7 +1,7 @@
 "use server";
 
 import { CredentialsMethod, OpenFgaClient } from "@openfga/sdk";
-import { stripObjectName } from "@/helpers/fga";
+import { stripObjectName } from "@/helpers/strip-object-name";
 import { StoredFile } from "@/store/files";
 import { Folder } from "@/store/folders";
 
@@ -19,6 +19,24 @@ const fgaClient = new OpenFgaClient({
     },
   },
 });
+
+export async function authorizeRootFolder(userId: string) {
+  const { allowed } = await fgaClient.check({
+    user: `user:${userId}`,
+    relation: "owner",
+    object: `folder:${userId}`,
+  });
+
+  if (!allowed) {
+    fgaClient.writeTuples([
+      {
+        user: `user:${userId}`,
+        relation: "owner",
+        object: `folder:${userId}`,
+      },
+    ]);
+  }
+}
 
 export async function doCheck(
   user: string,
@@ -68,7 +86,7 @@ export async function filterFilesForUser(
       };
     }),
   );
-  console.log(responses, files);
+
   return responses
     .map((check) =>
       check.allowed

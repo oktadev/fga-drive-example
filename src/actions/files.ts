@@ -14,7 +14,7 @@ import { getFileHash } from "@/helpers/hash";
 import { Hash } from "crypto";
 import { writeFile } from "fs/promises";
 import { revalidatePath } from "next/cache";
-import { auth0ManagementClient } from "@/helpers/auth0Management";
+import { auth0ManagementClient } from "@/helpers/auth0-management";
 
 export async function uploadFile(parent: string, formData: FormData) {
   try {

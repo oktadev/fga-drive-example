@@ -8,7 +8,7 @@ import {
   listSharedFiles,
 } from "./authorization";
 import { getUserId } from "./user";
-import { stripObjectName } from "@/helpers/fga";
+import { stripObjectName } from "@/helpers/strip-object-name";
 
 export async function getAllFilesForParentDTO(parent: string) {
   try {
@@ -24,7 +24,7 @@ export async function getAllFilesForParentDTO(parent: string) {
 
     // Get all files from the Vercel Key/Value Store
     const files = await getFiles(parent);
-    console.log(files);
+
     // Filter all files for the ones we're allowed to see according to OpenFGA
     const filteredFiles = await filterFilesForUser(files, userId);
 

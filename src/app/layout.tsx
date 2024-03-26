@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { UserProvider } from "@auth0/nextjs-auth0/client";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
-import { setupRootFolder } from "@/helpers/fga";
+import { authorizeRootFolder } from "@/data/authorization";
 import { getSession } from "@auth0/nextjs-auth0";
 
 export const metadata: Metadata = {
@@ -18,7 +18,7 @@ export default async function RootLayout({
   const session = await getSession();
 
   if (session) {
-    await setupRootFolder(session?.user?.sub);
+    await authorizeRootFolder(session?.user?.sub);
   }
 
   return (

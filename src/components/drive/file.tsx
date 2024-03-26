@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { FileIcon } from "@/components/icons";
-import { formatBytes } from "@/helpers/fileSize";
+import { formatBytes } from "@/helpers/file-size";
 import { ShareFile } from "@/components/drive/share-file";
 
 export function DriveFile({ file }: { file: StoredFile }) {

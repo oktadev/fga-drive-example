@@ -12,7 +12,7 @@ import {
   createFolder as createFolderInStore,
 } from "@/store/folders";
 import { revalidatePath } from "next/cache";
-import { auth0ManagementClient } from "@/helpers/auth0Management";
+import { auth0ManagementClient } from "@/helpers/auth0-management";
 
 export async function createFolder(parent: string, name: string) {
   try {

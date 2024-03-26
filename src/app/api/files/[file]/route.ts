@@ -1,5 +1,4 @@
 import "server-only";
-import { withFGA } from "@/helpers/fga";
 import { getFile } from "@/store/files";
 import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
 import { readFile } from "fs/promises";
