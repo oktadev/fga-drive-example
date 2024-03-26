@@ -9,8 +9,6 @@ import {
 } from "@/data/authorization";
 import { getUserDTO, getUserId } from "@/data/user";
 import {
-  getFolder,
-  getFolders,
   createFolder as createFolderInStore,
 } from "@/store/folders";
 import { revalidatePath } from "next/cache";

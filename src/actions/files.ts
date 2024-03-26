@@ -38,13 +38,10 @@ export async function uploadFile(parent: string, formData: FormData) {
     const filePath: string = `${process.cwd()}/upload/${fileHash.toString()}${fileExtension}`;
     const fileSize: number = Buffer.byteLength(fileBuffer);
     const uploadedFile: StoredFile = {
-      // id: fileId,
       name: file.name,
       lastModified: file.lastModified,
       fileName: `${fileHash}${fileExtension}`,
-      // owner: { sub: userId, name: user?.name },
       size: fileSize,
-      // parent: parent,
     };
 
     // Save the file to the /upload folder, this should probably be saved in a static file store like Vercel Blob Storage of AWS S3 in the real world
