@@ -1,14 +1,8 @@
 "use server";
 import { isAuthenticated } from "./authentication";
-import {
-  canViewFolder,
-  filterFoldersForUser,
-} from "./authorization";
+import { canViewFolder, filterFoldersForUser } from "./authorization";
 import { getUserId } from "./user";
-import {
-  getFolder,
-  getFolders,
-} from "@/store/folders";
+import { getFolder, getFolders } from "@/store/folders";
 
 export async function getAllFoldersForParentDTO(parent: string) {
   try {
@@ -24,7 +18,7 @@ export async function getAllFoldersForParentDTO(parent: string) {
 
     // Get all folders for the parent from our Vercel Key/Value Store
     const folders = await getFolders(parent);
-    
+
     // Filter the folders for the ones we're allowed to see according to OpenFGA and return these
     return { folders: await filterFoldersForUser(folders, userId) };
   } catch (error) {
@@ -60,4 +54,3 @@ export async function getFolderDTO(folderId: string) {
     return { error: "Something went wrong." };
   }
 }
-

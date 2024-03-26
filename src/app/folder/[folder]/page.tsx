@@ -7,11 +7,7 @@ import { DriveHeader } from "@/components/drive/header";
 import { Error } from "@/components/error";
 
 export const dynamic = "force-dynamic";
-export default async function ({
-  params,
-}: {
-  params: { folder: string };
-}) {
+export default async function ({ params }: { params: { folder: string } }) {
   const { files, error: filesError } = await getAllFilesForParentDTO(
     params.folder,
   );
@@ -40,4 +36,4 @@ export default async function ({
       </div>
     </div>
   );
-};
+}

@@ -24,18 +24,18 @@ export async function getAllFilesForParentDTO(parent: string) {
 
     // Get all files from the Vercel Key/Value Store
     const files = await getFiles(parent);
-    console.log(files)
+    console.log(files);
     // Filter all files for the ones we're allowed to see according to OpenFGA
     const filteredFiles = await filterFilesForUser(files, userId);
-    
+
     // Convert the lase modified timestamp to a human readable date and time and return the files
     return {
       files: filteredFiles.map((file) => ({
         ...file,
         lastModified: `${new Date(
-          file?.lastModified,
+          Number(file?.lastModified),
         ).toLocaleTimeString()} - ${new Date(
-          file?.lastModified,
+          Number(file?.lastModified),
         ).toLocaleDateString()}`,
       })),
     };
@@ -61,7 +61,16 @@ export async function getAllSharedFilesDTO() {
       sharedFiles?.objects?.map((file) => stripObjectName(file)),
     );
 
-    return { files };
+    return {
+      files: files.map((file) => ({
+        ...file,
+        lastModified: `${new Date(
+          Number(file?.lastModified),
+        ).toLocaleTimeString()} - ${new Date(
+          Number(file?.lastModified),
+        ).toLocaleDateString()}`,
+      })),
+    };
   } catch (error) {
     console.error(error);
     return { error: "Something went wrong." };

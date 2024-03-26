@@ -8,7 +8,7 @@ import { Error } from "@/components/error";
 export const dynamic = "force-dynamic";
 export default async function () {
   const { files, error } = await getAllSharedFilesDTO();
-  
+
   return (
     <div className="flex min-h-screen w-full bg-gray-100/40 dark:bg-gray-800/40">
       <Navigation current="shared" />
@@ -22,4 +22,4 @@ export default async function () {
       </div>
     </div>
   );
-};
+}
