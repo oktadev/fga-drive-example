@@ -1,83 +1,26 @@
 import "server-only";
-const mock: Array<Folder> = [
-  // {
-  //   id: "a4d67f8f-d049-4d35-97e2-f00a28e78a1a",
-  //   name: "Cats",
-  //   owner: {
-  //     name: "Sam Bellen",
-  //     sub: "google-oauth2|113579922173428537783",
-  //   },
-  //   parent: "google-oauth2|113579922173428537783",
-  // },
-  // {
-  //   id: "b4d67f8f-d049-4d35-97e2-f00a28e78a1a",
-  //   name: "Micio",
-  //   owner: {
-  //     name: "Sam Bellen",
-  //     sub: "google-oauth2|113579922173428537783",
-  //   },
-  //   parent: "a4d67f8f-d049-4d35-97e2-f00a28e78a1a",
-  // },
-  // {
-  //   id: "x4d67f8f-d049-4d35-97e2-f00a28e78a1a",
-  //   name: "Whiskey",
-  //   owner: {
-  //     name: "Sam Bellen",
-  //     sub: "google-oauth2|113579922173428537783",
-  //   },
-  //   parent: "a4d67f8f-d049-4d35-97e2-f00a28e78a1a",
-  // },
-];
+import { kv } from "@vercel/kv";
 
 export interface Folder {
   name: string;
-  id: string;
-  owner: { name: string; sub: string };
+  id?: string;
   parent: string;
 }
 
-interface GetFolderParams {
-  subset: Array<string>;
-  parent: String;
+export async function getFolder(id: string) {
+  return {...await kv.hgetall(`folder:${id}`), id};
 }
 
-let store: Array<Folder> = process.env.NODE_ENV !== "production" ? mock : [];
+export async function getFolders(parent: string) {
+  const foldersForFolder = await kv.smembers(`folder-folders:${parent}`);
+  const promises: Array<Promise<Folder>> = [];
+  foldersForFolder.forEach(folderId => promises.push(kv.hgetall(`folder:${folderId}`)));
 
-export function getFolder(id: string): Folder | undefined {
-  return store.find((folder: Folder) => folder.id === id);
+  return (await Promise.all(promises)).map((folder, index) => ({...folder, id: foldersForFolder[index]}))
 }
 
-export function getFolders(params: GetFolderParams): Array<Folder | undefined> {
-  if (params?.subset) {
-    return store.filter((folder: Folder) => params?.subset.includes(folder.id));
-  }
-
-  if (params?.parent) {
-    return store.filter((folder: Folder) => folder?.parent === params?.parent);
-  }
-
-  return store;
-}
-
-export function createFolder(folder: Folder): Folder | undefined {
-  store = [...store, folder];
-  return getFolder(folder.id);
-}
-
-export function editFolder(
-  id: string,
-  updatedFolder: Folder,
-): Folder | undefined {
-  store = store.map((folder) => {
-    if (id === folder.id) {
-      return { ...folder, ...updatedFolder };
-    }
-    return folder;
-  });
-
-  return getFolder(id);
-}
-
-export function deleteFolder(id: string): void {
-  store = store.filter((folder: Folder) => folder.id !== id);
+export async function createFolder(folderId: string, parent: string, folder: Folder) {
+  await kv.hset(`folder:${folderId}`, {...folder});
+  await kv.sadd(`folder-folders:${parent}`, folderId);
+  return await getFolders(parent);
 }

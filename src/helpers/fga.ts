@@ -18,7 +18,9 @@ export const fgaClient = new OpenFgaClient({
   },
 });
 
-export type FGARouteHandler = () => Promise<NextResponse<unknown>> | NextResponse<unknown>;
+export type FGARouteHandler = () =>
+  | Promise<NextResponse<unknown>>
+  | NextResponse<unknown>;
 export async function withFGA(
   routeHandler: FGARouteHandler,
   check: CheckRequestTupleKey,
