@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { UserProvider } from "@auth0/nextjs-auth0/client";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
-import { authorizeRootFolder } from "@/data/authorization";
+import { authorizeRootFolder } from "@/app/authorization";
 import { getSession } from "@auth0/nextjs-auth0";
 
 export const metadata: Metadata = {

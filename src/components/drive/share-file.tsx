@@ -16,7 +16,7 @@ import { ShareIcon } from "@/components/icons";
 import { useState } from "react";
 import { StoredFile } from "@/store/files";
 import { useToast } from "@/components/ui/use-toast";
-import { shareFile } from "@/actions/files";
+import { shareFile } from "@/app/actions";
 
 export function ShareFile({ file }: { file: StoredFile }) {
   const { toast } = useToast();

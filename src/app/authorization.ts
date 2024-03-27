@@ -1,5 +1,4 @@
-"use server";
-
+import "server-only";
 import { CredentialsMethod, OpenFgaClient } from "@openfga/sdk";
 import { stripObjectName } from "@/helpers/strip-object-name";
 import { StoredFile } from "@/store/files";

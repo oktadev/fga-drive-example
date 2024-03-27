@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { ShareIcon } from "@/components/icons";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { shareFolder } from "@/actions/folders";
+import { shareFolder } from "@/app/actions";
 import { Folder } from "@/store/folders";
 export function ShareFolder({ folder }: { folder: Folder }) {
   const { toast } = useToast();

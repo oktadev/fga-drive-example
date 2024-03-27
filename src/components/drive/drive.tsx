@@ -10,7 +10,7 @@ import { DriveFolder } from "@/components/drive/folder";
 import { DriveFile } from "@/components/drive/file";
 import { StoredFile } from "@/store/files";
 import { Folder } from "@/store/folders";
-import { uploadFile } from "@/actions/files";
+import { uploadFile } from "@/app/actions";
 
 export interface DriveProps {
   files: Array<StoredFile>;

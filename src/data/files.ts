@@ -1,12 +1,5 @@
-"use server";
-
-import { getFiles, getFilesSubset } from "@/store/files";
-import { isAuthenticated } from "./authentication";
-import {
-  canViewFilesForParent,
-  filterFilesForUser,
-  listSharedFiles,
-} from "./authorization";
+import { getFiles, getFilesSubset } from "@/app/actions";
+import { filterFilesForUser, listSharedFiles } from "../app/authorization";
 import { getUserId } from "./user";
 import { stripObjectName } from "@/helpers/strip-object-name";
 
@@ -14,16 +7,8 @@ export async function getAllFilesForParentDTO(parent: string) {
   try {
     const userId = await getUserId();
 
-    if (await !isAuthenticated()) {
-      return { error: "Unauthorized" };
-    }
-
-    if (await !canViewFilesForParent(userId, parent)) {
-      return { error: "Forbidden" };
-    }
-
-    // Get all files from the Vercel Key/Value Store
-    const files = await getFiles(parent);
+    // Get all saved files
+    const { files } = await getFiles(parent);
 
     // Filter all files for the ones we're allowed to see according to OpenFGA
     const filteredFiles = await filterFilesForUser(files, userId);
@@ -33,9 +18,9 @@ export async function getAllFilesForParentDTO(parent: string) {
       files: filteredFiles.map((file) => ({
         ...file,
         lastModified: `${new Date(
-          Number(file?.lastModified),
+          Number(file?.lastModified)
         ).toLocaleTimeString()} - ${new Date(
-          Number(file?.lastModified),
+          Number(file?.lastModified)
         ).toLocaleDateString()}`,
       })),
     };
@@ -49,25 +34,20 @@ export async function getAllSharedFilesDTO() {
   try {
     const userId = await getUserId();
 
-    if (await !isAuthenticated()) {
-      return { error: "Unauthorized" };
-    }
-
     // List all files that are shared with the current user in OpenFGA
     const sharedFiles = await listSharedFiles(userId);
-
     // Get all shared files from our our Vercel Key/Value Store
-    const files = await getFilesSubset(
-      sharedFiles?.objects?.map((file) => stripObjectName(file)),
+    const { files } = await getFilesSubset(
+      sharedFiles?.objects?.map((file) => stripObjectName(file))
     );
 
     return {
-      files: files.map((file) => ({
+      files: files?.map((file) => ({
         ...file,
         lastModified: `${new Date(
-          Number(file?.lastModified),
+          Number(file?.lastModified)
         ).toLocaleTimeString()} - ${new Date(
-          Number(file?.lastModified),
+          Number(file?.lastModified)
         ).toLocaleDateString()}`,
       })),
     };

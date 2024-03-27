@@ -1,4 +1,3 @@
-import "server-only";
 import { kv } from "@vercel/kv";
 
 export interface Folder {
@@ -7,11 +6,11 @@ export interface Folder {
   parent: string;
 }
 
-export async function getFolder(id: string) {
+export async function getFolderFromStore(id: string) {
   return { ...(await kv.hgetall(`folder:${id}`)), id };
 }
 
-export async function getFolders(parent: string) {
+export async function getFoldersFromStore(parent: string) {
   const foldersForFolder = await kv.smembers(`folder-folders:${parent}`);
   const promises: Array<Promise<Folder>> = [];
   foldersForFolder.forEach((folderId) =>
@@ -21,15 +20,15 @@ export async function getFolders(parent: string) {
   return (await Promise.all(promises)).map((folder, index) => ({
     ...folder,
     id: foldersForFolder[index],
-  }));
+  })) ?? [];
 }
 
-export async function createFolder(
+export async function createFolderInStore(
   folderId: string,
   parent: string,
   folder: Folder,
 ) {
   await kv.hset(`folder:${folderId}`, { ...folder });
   await kv.sadd(`folder-folders:${parent}`, folderId);
-  return await getFolders(parent);
+  return await getFoldersFromStore(parent);
 }
