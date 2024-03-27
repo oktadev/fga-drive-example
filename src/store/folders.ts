@@ -1,33 +1,4 @@
 import "server-only";
-const mock: Array<Folder> = [
-  // {
-  //   id: "a4d67f8f-d049-4d35-97e2-f00a28e78a1a",
-  //   name: "Cats",
-  //   owner: {
-  //     name: "Sam Bellen",
-  //     sub: "google-oauth2|113579922173428537783",
-  //   },
-  //   parent: "google-oauth2|113579922173428537783",
-  // },
-  // {
-  //   id: "b4d67f8f-d049-4d35-97e2-f00a28e78a1a",
-  //   name: "Micio",
-  //   owner: {
-  //     name: "Sam Bellen",
-  //     sub: "google-oauth2|113579922173428537783",
-  //   },
-  //   parent: "a4d67f8f-d049-4d35-97e2-f00a28e78a1a",
-  // },
-  // {
-  //   id: "x4d67f8f-d049-4d35-97e2-f00a28e78a1a",
-  //   name: "Whiskey",
-  //   owner: {
-  //     name: "Sam Bellen",
-  //     sub: "google-oauth2|113579922173428537783",
-  //   },
-  //   parent: "a4d67f8f-d049-4d35-97e2-f00a28e78a1a",
-  // },
-];
 
 export interface Folder {
   name: string;
@@ -41,7 +12,7 @@ interface GetFolderParams {
   parent: String;
 }
 
-let store: Array<Folder> = process.env.NODE_ENV !== "production" ? mock : [];
+let store: Array<Folder> = [];
 
 export function getFolder(id: string): Folder | undefined {
   return store.find((folder: Folder) => folder.id === id);
