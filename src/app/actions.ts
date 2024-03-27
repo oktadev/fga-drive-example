@@ -15,7 +15,7 @@ import {
   canViewFilesForParent,
   canViewFolder,
 } from "@/app/authorization";
-import { getUserDTO, getUserId } from "@/data/user";
+import { getUserId } from "@/data/user";
 import { getFileHash } from "@/helpers/hash";
 import { Hash } from "crypto";
 import { writeFile } from "fs/promises";
@@ -29,7 +29,6 @@ import {
   createFileInStore,
 } from "@/store/files";
 import {
-  Folder,
   getFolderFromStore,
   getFoldersFromStore,
   createFolderInStore,
@@ -98,7 +97,6 @@ export async function uploadFile(parent: string, formData: FormData) {
       return { error: "Forbidden" };
     }
 
-    const user = await getUserDTO();
     const file: File = formData.get("file") as unknown as File;
     const fileBytes: ArrayBuffer = await file.arrayBuffer();
     const fileBuffer: Buffer = Buffer.from(fileBytes);
@@ -123,7 +121,9 @@ export async function uploadFile(parent: string, formData: FormData) {
     // Write OpenFGA tupples for the new file
     await authorizeNewFile(fileId, userId, parent);
 
-    revalidatePath("/folder");
+    // If the parent folder is equal to our userId, we're in the root folder and we'll revalidate /folder,
+    // If it's not we'll revalidate the sub-folder's route /folder/[parent]
+    revalidatePath(`/folder${parent === userId ? '' : `/${parent}`}`);
     return { file: uploadedFile };
   } catch (error) {
     console.error(error);
@@ -204,13 +204,13 @@ export async function getFolders(parent: string) {
 
 export async function createFolder(parent: string, name: string) {
   try {
-    const user = await getUserDTO();
+    const userId = await getUserId();
 
     if (await !isAuthenticated()) {
       return { error: "Unauthorized" };
     }
 
-    if (await !canCreateFolderForParent(user?.sub, parent)) {
+    if (await !canCreateFolderForParent(userId, parent)) {
       return { error: "Forbidden" };
     }
 
@@ -224,9 +224,11 @@ export async function createFolder(parent: string, name: string) {
     });
 
     // Write OpenFGA tupples for the new folder
-    await authorizeNewFolder(folderId, user?.sub, parent);
+    await authorizeNewFolder(folderId, userId, parent);
 
-    revalidatePath("/folder");
+    // If the parent folder is equal to our userId, we're in the root folder and we'll revalidate /folder,
+    // If it's not we'll revalidate the sub-folder's route /folder/[parent]
+    revalidatePath(`/folder${parent === userId ? '' : `/${parent}`}`);
     return {
       folder: folder?.name,
     };
