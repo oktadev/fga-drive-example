@@ -28,21 +28,6 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## API Endpoints
-
-| Method | Endpoint | Description |
-| ------ | -------- |------------ |
-| GET    | `/api/files` | List all folders for the root folder, a query param `?parent=[folder]` is available to list files from a sub folder<br/><br/> - Query your database/datastore for all files for a folder<br/> -  Perform a batch check using the OpenFGA client to assert the user can view all of these files<br/> -  return the allowed files |
-| POST   | `/api/files` | Upload a new file<br/><br/> - Check OpenFGA if the user can upload a new file<br/> - Upload the new file to the `/upload` folder<br/> - Write a new tupple to OpenFGA indicating the file is owned by the current user<br/> - Write a new tupple to OpenFGA indicating the the file has the current folder as it's parent |
-| GET    | `/api/files/[file]` | View a file<br/> - Check OpenFGA if the current user can view the specific file<br/> - Return the file |
-| POST   | `/api/files/[file]/share` | Share a file<br/><br/> - Check OpenFGA if the user can share the file<br/> - Check Auth0 if the email address belongs to a known user and use that user's subject<br/> - Write a new tupple to OpenFGA indicating the file has a new viewer, the previously looked-up user |
-| GET    | `/api/files/shared` | Get all files shared with a user<br/><br/> - List all objects in OpenFGA that have the `is_shared` relationship<br/> - Get all these files from our database/datastore |
-| GET    | `/api/folders` | List all folders for the root folder, a query param `?parent=[folder]` is parent available to list fodlers from a sub folder<br/><br/> - Check if we can view the parent folder in OpenFGA<br/> - Get all folders for it's parent from our database/datastore |
-| POST   | `/api/folders` | Create a new folder<br/><br/> - Check if the user can create a new folder for it's parent in OpenFGA<br/> - Create the new folder in our database/datastore<br/> - Write a new tupple to OpenFGA indicating the new folder is owned by the current user<br/> - Write a new tupple to OpenFGA indicating the new folder has it's parent folder as parent |
-| GET    | `/api/folders/[folder]` | Get a folder details<br/><br/> - Check OpenFGA if we can view a folder<br/> - Return the folder's details from our database/datastore |
-| POST   | `/api/folders/[folder]/share`| Share a folder<br/><br/> - Check OpenFGA is we can share the folder<br/> - Check Auth0 if the email address belongs to a known user and use that user's subject<br/> - Write a new tupple to OpenFGA indicating the folder has a new viewer, the previously looked-up user |
-
-
 ## OpenFGA Model
 
 The OpenFGA model used for this application looks similar to the Google Drive Example on the [OpenFGA Playground](https://openfga.dev/docs/getting-started/setup-openfga/playground), with some minor tweaks.
@@ -77,3 +62,58 @@ type folder
     define parent: [folder]
     define viewer: [user, user:*] or owner or viewer from parent
 ```
+
+The application does the following checks
+
+### Files
+- Requesting a file
+  - Check if the current user has a `can_view` relationship to a file
+- Requesting all files for a folder
+  - Check if the current user has a `can_view` relationship to a folder
+  - Check for a `can_view` relationship for all files
+- Uploading a file
+  - Check for a `can_create_file` relationship to the parent folder
+  - Once uploaded
+    - Write a tuple setting the user as the `owner` of the new file
+    - Write a tuple setting the parent folder as the `parent` of the new file
+- Sharing a file
+  - Check if the current user has a `can_share` relationship with the file
+  - Write a tuple setting the user we shared the file with as a `viewer` of the file
+- Editing a file
+  - TBD
+- Deleting a file
+  - TBD
+
+### Folders
+- Requesting a folder
+  - Check if the current user has a `can_view` relationship to the folder
+- Requesting all folders for a parent folder
+  - Check if the current user has a `can_view` relationship to the parent folder
+  - Check for a `can_view` relationship with all folders withing the parent
+- Creating a new folder
+  - Check if the user has a `can_create_folder` relationship for it's parent
+  - Once created
+    - Write a new tuple setting the current user as it's `owner`
+    - Write a new tuple setting the parent folders as it's `parent`
+- Sharing a folder
+  - Check if the curent user `can_share` the folder
+  - Write a tuple setting the new user as a `viewer`
+- Editing a folder
+  - TBD
+- Deleting a folder
+  - TBD
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+| ------ | -------- |------------ |
+| GET    | `/api/files` | List all folders for the root folder, a query param `?parent=[folder]` is available to list files from a sub folder<br/><br/> - Query your database/datastore for all files for a folder<br/> -  Perform a batch check using the OpenFGA client to assert the user can view all of these files<br/> -  return the allowed files |
+| POST   | `/api/files` | Upload a new file<br/><br/> - Check OpenFGA if the user can upload a new file<br/> - Upload the new file to the `/upload` folder<br/> - Write a new tupple to OpenFGA indicating the file is owned by the current user<br/> - Write a new tupple to OpenFGA indicating the the file has the current folder as it's parent |
+| GET    | `/api/files/[file]` | View a file<br/> - Check OpenFGA if the current user can view the specific file<br/> - Return the file |
+| POST   | `/api/files/[file]/share` | Share a file<br/><br/> - Check OpenFGA if the user can share the file<br/> - Check Auth0 if the email address belongs to a known user and use that user's subject<br/> - Write a new tupple to OpenFGA indicating the file has a new viewer, the previously looked-up user |
+| GET    | `/api/files/shared` | Get all files shared with a user<br/><br/> - List all objects in OpenFGA that have the `is_shared` relationship<br/> - Get all these files from our database/datastore |
+| GET    | `/api/folders` | List all folders for the root folder, a query param `?parent=[folder]` is parent available to list fodlers from a sub folder<br/><br/> - Check if we can view the parent folder in OpenFGA<br/> - Get all folders for it's parent from our database/datastore |
+| POST   | `/api/folders` | Create a new folder<br/><br/> - Check if the user can create a new folder for it's parent in OpenFGA<br/> - Create the new folder in our database/datastore<br/> - Write a new tupple to OpenFGA indicating the new folder is owned by the current user<br/> - Write a new tupple to OpenFGA indicating the new folder has it's parent folder as parent |
+| GET    | `/api/folders/[folder]` | Get a folder details<br/><br/> - Check OpenFGA if we can view a folder<br/> - Return the folder's details from our database/datastore |
+| POST   | `/api/folders/[folder]/share`| Share a folder<br/><br/> - Check OpenFGA is we can share the folder<br/> - Check Auth0 if the email address belongs to a known user and use that user's subject<br/> - Write a new tupple to OpenFGA indicating the folder has a new viewer, the previously looked-up user |
+
