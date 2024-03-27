@@ -41,3 +41,39 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 | POST   | `/api/folders` | Create a new folder<br/><br/> - Check if the user can create a new folder for it's parent in OpenFGA<br/> - Create the new folder in our database/datastore<br/> - Write a new tupple to OpenFGA indicating the new folder is owned by the current user<br/> - Write a new tupple to OpenFGA indicating the new folder has it's parent folder as parent |
 | GET    | `/api/folders/[folder]` | Get a folder details<br/><br/> - Check OpenFGA if we can view a folder<br/> - Return the folder's details from our database/datastore |
 | POST   | `/api/folders/[folder]/share`| Share a folder<br/><br/> - Check OpenFGA is we can share the folder<br/> - Check Auth0 if the email address belongs to a known user and use that user's subject<br/> - Write a new tupple to OpenFGA indicating the folder has a new viewer, the previously looked-up user |
+
+
+## OpenFGA Model
+
+The OpenFGA model used for this application looks similar to the Google Drive Example on the [OpenFGA Playground](https://openfga.dev/docs/getting-started/setup-openfga/playground), with some minor tweaks.
+
+The application currently does not implement all functionality like share or edit, this might be added in the future.
+
+```
+model
+  schema 1.1
+
+type user
+
+type file
+  relations
+    define can_delete: owner or owner from parent
+    define can_share: owner or owner from parent
+    define can_view: viewer or owner or viewer from parent
+    define can_write: owner or owner from parent
+    define is_owned: owner
+    define is_shared: can_view but not owner
+    define owner: [user]
+    define parent: [folder]
+    define viewer: [user, user:*]
+
+type folder
+  relations
+    define can_create_file: owner or owner from parent
+    define can_create_folder: owner or owner from parent
+    define can_share: owner or owner from parent
+    define can_view: viewer or owner or viewer from parent
+    define owner: [user]
+    define parent: [folder]
+    define viewer: [user, user:*] or owner or viewer from parent
+```
