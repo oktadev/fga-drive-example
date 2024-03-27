@@ -29,3 +29,39 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+
+## OpenFGA Model
+
+The OpenFGA model used for this application looks similar to the Google Drive Example on the [OpenFGA Playground](https://openfga.dev/docs/getting-started/setup-openfga/playground), with some minor tweaks.
+
+The application currently does not implement all functionality like share or edit, this might be added in the future.
+
+```
+model
+  schema 1.1
+
+type user
+
+type file
+  relations
+    define can_delete: owner or owner from parent
+    define can_share: owner or owner from parent
+    define can_view: viewer or owner or viewer from parent
+    define can_write: owner or owner from parent
+    define is_owned: owner
+    define is_shared: can_view but not owner
+    define owner: [user]
+    define parent: [folder]
+    define viewer: [user, user:*]
+
+type folder
+  relations
+    define can_create_file: owner or owner from parent
+    define can_create_folder: owner or owner from parent
+    define can_share: owner or owner from parent
+    define can_view: viewer or owner or viewer from parent
+    define owner: [user]
+    define parent: [folder]
+    define viewer: [user, user:*] or owner or viewer from parent
+```
