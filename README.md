@@ -65,3 +65,43 @@ type folder
     define parent: [folder]
     define viewer: [user, user:*] or owner or viewer from parent
 ```
+
+The application does the following checks
+
+### Files
+- Requesting a file
+  - Check if the current user has a `can_view` relationship to a file
+- Requesting all files for a folder
+  - Check if the current user has a `can_view` relationship to a folder
+  - Check for a `can_view` relationship for all files
+- Uploading a file
+  - Check for a `can_create_file` relationship to the parent folder
+  - Once uploaded
+    - Write a tuple setting the user as the `owner` of the new file
+    - Write a tuple setting the parent folder as the `parent` of the new file
+- Sharing a file
+  - Check if the current user has a `can_share` relationship with the file
+  - Write a tuple setting the user we shared the file with as a `viewer` of the file
+- Editing a file
+  - TBD
+- Deleting a file
+  - TBD
+
+### Folders
+- Requesting a folder
+  - Check if the current user has a `can_view` relationship to the folder
+- Requesting all folders for a parent folder
+  - Check if the current user has a `can_view` relationship to the parent folder
+  - Check for a `can_view` relationship with all folders withing the parent
+- Creating a new folder
+  - Check if the user has a `can_create_folder` relationship for it's parent
+  - Once created
+    - Write a new tuple setting the current user as it's `owner`
+    - Write a new tuple setting the parent folders as it's `parent`
+- Sharing a folder
+  - Check if the curent user `can_share` the folder
+  - Write a tuple setting the new user as a `viewer`
+- Editing a folder
+  - TBD
+- Deleting a folder
+  - TBD
