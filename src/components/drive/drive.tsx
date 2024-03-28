@@ -2,7 +2,7 @@
 
 import { useDropzone } from "react-dropzone";
 import { useToast } from "@/components/ui/use-toast";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { DriveSkeleton } from "@/components/drive/skeleton";
 import { DriveEmpty } from "@/components/drive/empty";
 import { DriveTable } from "@/components/drive/table";
