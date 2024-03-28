@@ -3,13 +3,14 @@ import { getFileFromStore } from "@/store/files";
 import { getSession } from "@auth0/nextjs-auth0";
 import { readFile } from "fs/promises";
 import mime from "mime";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { canViewFile } from "@/app/authorization";
 
 export const dynamic = "force-dynamic";
-export const GET = async function (request, { params }) {
+export const GET = async function (request: NextRequest, { params }: {params:{file:string}}) {
   try {
-    const { user } = await getSession();
+    const session = await getSession();
+    const user = session?.user;
     const fileId = params?.file;
 
     // If we're allowed to see the file, return it

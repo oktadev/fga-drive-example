@@ -30,7 +30,7 @@ export default function Shared() {
         {files?.length > 0 && (
           <DriveTable>
             {files.map((file: StoredFile) => (
-              <DriveFile file={file} />
+              <DriveFile file={file} key={file.id}/>
             ))}
           </DriveTable>
         )}

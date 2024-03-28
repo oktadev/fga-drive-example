@@ -8,7 +8,7 @@ import { DriveHeader } from "@/components/drive/header";
 import { Error } from "@/components/error";
 
 export const dynamic = "force-dynamic";
-export default async function () {
+export default async function Page() {
   const userId = await getUserId();
   const parent = userId; // If we're in the root folder, the parent folder is the user's ID
   const { files, error: filesError } = await getAllFilesForParentDTO(parent);
@@ -31,7 +31,7 @@ export default async function () {
             <Error message={JSON.stringify(currentFolderErrror)}></Error>
           )}
 
-          <DriveHeader parent={currentFolder.id} />
+          <DriveHeader parent={currentFolder?.id} />
           <Drive files={files} folders={folders} folder={currentFolder} />
         </main>
       </div>

@@ -8,16 +8,16 @@ import { DriveEmpty } from "@/components/drive/empty";
 import { DriveTable } from "@/components/drive/table";
 import { DriveFolder } from "@/components/drive/folder";
 import { DriveFile } from "@/components/drive/file";
-import { StoredFile } from "@/store/files";
 import { Folder } from "@/store/folders";
-import { uploadFile } from "@/app/actions";
+import { ReadableStoredFile, uploadFileDTO } from "@/data/files";
 
 export interface DriveProps {
-  files: Array<StoredFile>;
-  folders?: Array<Folder>;
-  folder?: { id: string; name?: string };
-  droppable: boolean;
+  files: Array<ReadableStoredFile> | undefined;
+  folders?: Array<Folder | undefined>;
+  folder?: { id: string; name?: string | null } | undefined;
+  droppable?: boolean;
 }
+
 export default function Drive({
   files = [],
   folders = [],
@@ -29,8 +29,8 @@ export default function Drive({
     for (const file of newFiles) {
       const formData = new FormData();
       formData.append("file", file);
-      const { file: uploadedFile, error } = await uploadFile(
-        folder?.id,
+      const { file: uploadedFile, error } = await uploadFileDTO(
+        folder?.id as string,
         formData,
       );
 
@@ -49,7 +49,7 @@ export default function Drive({
         });
       }
     }
-  }, []);
+  }, [folder, toast]);
 
   if (droppable) {
     return (
@@ -93,7 +93,7 @@ export function DropZone({
   onDrop,
 }: {
   children: React.ReactNode;
-  onDrop: Function;
+  onDrop: (newFiles: Array<File>) => void;
 }) {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     noClick: true,

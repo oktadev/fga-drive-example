@@ -1,21 +1,12 @@
-"use server";
+import "server-only";
 import { v4 as uuidv4 } from "uuid";
 import { extname } from "path";
-import { isAuthenticated } from "@/app/authentication";
 import {
   authorizeNewFile,
   authorizeNewFolder,
   authorizeNewSharedFile,
   authorizeNewSharedFolder,
-  canCreateFolderForParent,
-  canShareFile,
-  canShareFolder,
-  canUploadFileForParent,
-  canViewFile,
-  canViewFilesForParent,
-  canViewFolder,
 } from "@/app/authorization";
-import { getUserId } from "@/data/user";
 import { getFileHash } from "@/helpers/hash";
 import { Hash } from "crypto";
 import { writeFile } from "fs/promises";
@@ -32,20 +23,13 @@ import {
   getFolderFromStore,
   getFoldersFromStore,
   createFolderInStore,
+  Folder,
 } from "@/store/folders";
 
-export async function getFile(fileId: string) {
+export async function getFile(
+  fileId: string
+): Promise<{ file?: StoredFile; error?: unknown }> {
   try {
-    if (await !isAuthenticated()) {
-      return { error: "Unauthorized" };
-    }
-
-    const userId = await getUserId();
-    if (await !canViewFile(userId, fileId)) {
-      return { error: "Forbidden" };
-    }
-
-    // Get file from the Vercel Key/Value Store
     return { file: await getFileFromStore(fileId) };
   } catch (error) {
     console.error(error);
@@ -53,18 +37,10 @@ export async function getFile(fileId: string) {
   }
 }
 
-export async function getFiles(parent: string) {
+export async function getFiles(
+  parent: string
+): Promise<{ files?: Array<StoredFile>; error?: unknown }> {
   try {
-    if (await !isAuthenticated()) {
-      return { error: "Unauthorized" };
-    }
-
-    const userId = await getUserId();
-    if (await !canViewFilesForParent(userId, parent)) {
-      return { error: "Forbidden" };
-    }
-
-    // Get all files for the parent from the Vercel Key/Value Store
     return { files: await getFilesFromStore(parent) };
   } catch (error) {
     console.error(error);
@@ -72,13 +48,10 @@ export async function getFiles(parent: string) {
   }
 }
 
-export async function getFilesSubset(subset: Array<string>) {
+export async function getFilesSubset(
+  subset: Array<string>
+): Promise<{ files?: Array<StoredFile>; error?: unknown }> {
   try {
-    if (await !isAuthenticated()) {
-      return { error: "Unauthorized" };
-    }
-
-    // Get the subset of files from the Vercel Key/Value Store
     return { files: await getFilesSubsetFromStore(subset) };
   } catch (error) {
     console.error(error);
@@ -86,18 +59,12 @@ export async function getFilesSubset(subset: Array<string>) {
   }
 }
 
-export async function uploadFile(parent: string, formData: FormData) {
+export async function uploadFile(
+  parent: string,
+  file: File,
+  userId: string
+): Promise<{ file?: StoredFile; error?: unknown }> {
   try {
-    if (await !isAuthenticated()) {
-      return { error: "Unauthorized" };
-    }
-
-    const userId = await getUserId();
-    if (await !canUploadFileForParent(userId, parent)) {
-      return { error: "Forbidden" };
-    }
-
-    const file: File = formData.get("file") as unknown as File;
     const fileBytes: ArrayBuffer = await file.arrayBuffer();
     const fileBuffer: Buffer = Buffer.from(fileBytes);
     const fileId = uuidv4();
@@ -116,14 +83,14 @@ export async function uploadFile(parent: string, formData: FormData) {
     await writeFile(filePath, fileBuffer);
 
     // Store the files metadata in our Vercel Key/Value Store
-    const files = await createFileInStore(fileId, parent, uploadedFile);
+    await createFileInStore(fileId, parent, uploadedFile);
 
     // Write OpenFGA tupples for the new file
     await authorizeNewFile(fileId, userId, parent);
 
     // If the parent folder is equal to our userId, we're in the root folder and we'll revalidate /folder,
     // If it's not we'll revalidate the sub-folder's route /folder/[parent]
-    revalidatePath(`/folder${parent === userId ? '' : `/${parent}`}`);
+    revalidatePath(`/folder${parent === userId ? "" : `/${parent}`}`);
     return { file: uploadedFile };
   } catch (error) {
     console.error(error);
@@ -131,17 +98,11 @@ export async function uploadFile(parent: string, formData: FormData) {
   }
 }
 
-export async function shareFile(file: string, email: string) {
+export async function shareFile(
+  file: string,
+  email: string
+): Promise<{ file?: string; error?: unknown }> {
   try {
-    if (await !isAuthenticated()) {
-      return { error: "Unauthorized" };
-    }
-
-    const userId = await getUserId();
-    if (await !canShareFile(userId, file)) {
-      return { error: "Forbidden" };
-    }
-
     // Check the Auth0 management API for a user with the given email addres
     const { data } = await auth0ManagementClient.usersByEmail.getByEmail({
       email,
@@ -159,23 +120,14 @@ export async function shareFile(file: string, email: string) {
     return { file };
   } catch (error) {
     console.error(error);
-
     return { error: "Something went wrong." };
   }
 }
 
-export async function getFolder(folderId: string) {
+export async function getFolder(
+  folderId: string
+): Promise<{ folder?: Folder; error?: unknown }> {
   try {
-    if (await !isAuthenticated()) {
-      return { error: "Unauthorized" };
-    }
-
-    const userId = await getUserId();
-    if (await !canViewFolder(userId, folderId)) {
-      return { error: "Forbidden" };
-    }
-
-    // Return the folder from our Vercel Key/Value Store
     return { folder: await getFolderFromStore(folderId) };
   } catch (error) {
     console.error(error);
@@ -183,18 +135,10 @@ export async function getFolder(folderId: string) {
   }
 }
 
-export async function getFolders(parent: string) {
+export async function getFolders(
+  parent: string
+): Promise<{ folders?: Array<Folder>; error?: unknown }> {
   try {
-    if (await !isAuthenticated()) {
-      return { error: "Unauthorized" };
-    }
-
-    const userId = await getUserId();
-    if (await !canViewFolder(userId, parent)) {
-      return { error: "Forbidden" };
-    }
-
-    // Return all folders for the parent from our Vercel Key/Value Store
     return { folders: await getFoldersFromStore(parent) };
   } catch (error) {
     console.error(error);
@@ -202,23 +146,17 @@ export async function getFolders(parent: string) {
   }
 }
 
-export async function createFolder(parent: string, name: string) {
+export async function createFolder(
+  parent: string,
+  name: string,
+  userId: string
+): Promise<{ folder?: string; error?: unknown }> {
   try {
-    const userId = await getUserId();
-
-    if (await !isAuthenticated()) {
-      return { error: "Unauthorized" };
-    }
-
-    if (await !canCreateFolderForParent(userId, parent)) {
-      return { error: "Forbidden" };
-    }
-
     // Create a random and unique id for the new folder
     const folderId = uuidv4();
 
     // Save the new folder to our Vercel Key/Value Store
-    const folder = createFolderInStore(folderId, parent, {
+    const folder: Folder = await createFolderInStore(folderId, parent, {
       name: name,
       parent,
     });
@@ -228,7 +166,8 @@ export async function createFolder(parent: string, name: string) {
 
     // If the parent folder is equal to our userId, we're in the root folder and we'll revalidate /folder,
     // If it's not we'll revalidate the sub-folder's route /folder/[parent]
-    revalidatePath(`/folder${parent === userId ? '' : `/${parent}`}`);
+    revalidatePath(`/folder${parent === userId ? "" : `/${parent}`}`);
+
     return {
       folder: folder?.name,
     };
@@ -238,18 +177,11 @@ export async function createFolder(parent: string, name: string) {
   }
 }
 
-export async function shareFolder(folder: string, email: string) {
+export async function shareFolder(
+  folder: string,
+  email: string
+): Promise<{ folder?: string; error?: unknown }> {
   try {
-    const userId = await getUserId();
-
-    if (await !isAuthenticated()) {
-      return { error: "Unauthorized" };
-    }
-
-    if (await !canShareFolder(userId, folder)) {
-      return { error: "Forbidden" };
-    }
-
     // Check the Auth0 management API for a user with the given email addres
     const { data } = await auth0ManagementClient.usersByEmail.getByEmail({
       email,

@@ -6,7 +6,7 @@ import { getAllSharedFilesDTO } from "@/data/files";
 import { Error } from "@/components/error";
 
 export const dynamic = "force-dynamic";
-export default async function () {
+export default async function Page() {
   const { files, error } = await getAllSharedFilesDTO();
 
   return (

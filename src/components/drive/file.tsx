@@ -1,4 +1,3 @@
-import { StoredFile } from "@/store/files";
 import { TableRow, TableCell } from "@/components/ui/table";
 import {
   Dialog,
@@ -11,8 +10,9 @@ import {
 import { FileIcon } from "@/components/icons";
 import { formatBytes } from "@/helpers/file-size";
 import { ShareFile } from "@/components/drive/share-file";
+import { ReadableStoredFile } from "@/data/files";
 
-export function DriveFile({ file }: { file: StoredFile }) {
+export function DriveFile({ file }: { file: ReadableStoredFile }) {
   return (
     <TableRow>
       <TableCell>
@@ -25,7 +25,7 @@ export function DriveFile({ file }: { file: StoredFile }) {
             <DialogHeader>
               <DialogTitle>{file?.name}</DialogTitle>
               <DialogDescription>
-                Last updated by <strong>{file?.owner?.name}</strong> on{" "}
+                Last updated on{" "}
                 <strong>{file?.lastModified}</strong>.
               </DialogDescription>
             </DialogHeader>

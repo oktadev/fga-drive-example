@@ -3,7 +3,6 @@
 import {
   AddFolderIcon,
   ChevronRightIcon,
-  ExclamationTriangleIcon,
 } from "@/components/icons";
 import Link from "next/link";
 import {
@@ -18,18 +17,18 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { createFolder } from "@/app/actions";
 import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
+import { createFolderDTO } from "@/data/folders";
 
 export function DriveHeader({
   name,
   parent,
   title,
 }: {
-  name?: string;
-  parent?: string;
-  title?: string;
+  name?: string | null;
+  parent?: string | null;
+  title?: string | null;
 }) {
   const { toast } = useToast();
   const [newFolderName, setNewFolderName] = useState("");
@@ -40,21 +39,23 @@ export function DriveHeader({
   }
 
   async function handleCreateFolder() {
-    const { folder, error } = await createFolder(parent, newFolderName);
+    if(!!createFolderHandler && parent) {
+      const { folder, error } = await createFolderDTO(parent, newFolderName);
 
     if (folder) {
       toast({
         title: "Folder created",
-        description: `The folder ${folder} has been created successfully!`,
+        description: `The folder ${newFolderName} has been created successfully!`,
       });
     }
 
     if (error) {
       toast({
-        title: "Something went wrong creating the new folder",
-        description: JSON.stringify(error),
-        variant: "destructive",
-      });
+          title: "Something went wrong creating the new folder",
+          description: JSON.stringify(error),
+          variant: "destructive",
+        });
+      }
     }
   }
   return (

@@ -30,7 +30,6 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-
 ## OpenFGA Model
 
 The OpenFGA model used for this application looks similar to the Google Drive Example on the [OpenFGA Playground](https://openfga.dev/docs/getting-started/setup-openfga/playground), with some minor tweaks.
@@ -69,6 +68,7 @@ type folder
 The application does the following checks
 
 ### Files
+
 - Requesting a file
   - Check if the current user has a `can_view` relationship to a file
 - Requesting all files for a folder
@@ -88,6 +88,7 @@ The application does the following checks
   - TBD
 
 ### Folders
+
 - Requesting a folder
   - Check if the current user has a `can_view` relationship to the folder
 - Requesting all folders for a parent folder

@@ -14,9 +14,9 @@ import { Input } from "@/components/ui/input";
 import { ShareIcon } from "@/components/icons";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { shareFolder } from "@/app/actions";
+import { shareFolderDTO } from "@/data/folders";
 import { Folder } from "@/store/folders";
-export function ShareFolder({ folder }: { folder: Folder }) {
+export function ShareFolder({ folder }: { folder: Folder | undefined }) {
   const { toast } = useToast();
   const [email, setEmail] = useState("");
 
@@ -25,7 +25,7 @@ export function ShareFolder({ folder }: { folder: Folder }) {
   }
 
   async function handleShare(folderId: string) {
-    const { folder: sharedFolder, error } = await shareFolder(folderId, email);
+    const { folder: sharedFolder, error } = await shareFolderDTO(folderId, email);
 
     if (sharedFolder) {
       toast({
@@ -73,7 +73,7 @@ export function ShareFolder({ folder }: { folder: Folder }) {
         </div>
         <DialogFooter>
           <DialogClose asChild>
-            <Button type="submit" onClick={() => handleShare(folder.id)}>
+            <Button type="submit" onClick={() => handleShare(folder?.id as string)}>
               Share
             </Button>
           </DialogClose>
