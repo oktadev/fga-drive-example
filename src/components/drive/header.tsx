@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  AddFolderIcon,
-  ChevronRightIcon,
-} from "@/components/icons";
+import { AddFolderIcon, ChevronRightIcon } from "@/components/icons";
 import Link from "next/link";
 import {
   Dialog,
@@ -39,18 +36,18 @@ export function DriveHeader({
   }
 
   async function handleCreateFolder() {
-    if(!!createFolderHandler && parent) {
+    if (!!createFolderHandler && parent) {
       const { folder, error } = await createFolderDTO(parent, newFolderName);
 
-    if (folder) {
-      toast({
-        title: "Folder created",
-        description: `The folder ${newFolderName} has been created successfully!`,
-      });
-    }
+      if (folder) {
+        toast({
+          title: "Folder created",
+          description: `The folder ${newFolderName} has been created successfully!`,
+        });
+      }
 
-    if (error) {
-      toast({
+      if (error) {
+        toast({
           title: "Something went wrong creating the new folder",
           description: JSON.stringify(error),
           variant: "destructive",

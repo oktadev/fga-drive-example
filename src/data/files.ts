@@ -20,7 +20,7 @@ import { StoredFile } from "@/store/files";
 import { isAuthenticated } from "@/app/authentication";
 
 export async function getFileDTO(
-  fileId: string
+  fileId: string,
 ): Promise<{ file?: StoredFile; error?: unknown }> {
   try {
     if (await !isAuthenticated()) {
@@ -38,17 +38,14 @@ export async function getFileDTO(
   }
 }
 
-
 export interface ReadableStoredFile {
-    name: string;
-    fileName: string;
-    size: number;
-    id?: string;
-    lastModified: string;
+  name: string;
+  fileName: string;
+  size: number;
+  id?: string;
+  lastModified: string;
 }
-export async function getAllFilesForParentDTO(
-  parent: string
-): Promise<{
+export async function getAllFilesForParentDTO(parent: string): Promise<{
   files?: Array<ReadableStoredFile>;
   error?: unknown;
 }> {
@@ -74,9 +71,9 @@ export async function getAllFilesForParentDTO(
         files: filteredFiles.map((file) => ({
           ...file,
           lastModified: `${new Date(
-            Number(file?.lastModified)
+            Number(file?.lastModified),
           ).toLocaleTimeString()} - ${new Date(
-            Number(file?.lastModified)
+            Number(file?.lastModified),
           ).toLocaleDateString()}`,
         })),
       };
@@ -102,7 +99,7 @@ export async function getAllSharedFilesDTO(): Promise<{
     const sharedFiles = await listSharedFiles(userId);
     // Get all shared files from our our Vercel Key/Value Store
     const { files, error } = await getFilesSubset(
-      sharedFiles?.objects?.map((file) => stripObjectName(file))
+      sharedFiles?.objects?.map((file) => stripObjectName(file)),
     );
 
     if (files) {
@@ -110,22 +107,25 @@ export async function getAllSharedFilesDTO(): Promise<{
         files: files?.map((file) => ({
           ...file,
           lastModified: `${new Date(
-            Number(file?.lastModified)
+            Number(file?.lastModified),
           ).toLocaleTimeString()} - ${new Date(
-            Number(file?.lastModified)
+            Number(file?.lastModified),
           ).toLocaleDateString()}`,
         })),
       };
     }
 
-    return {error}
+    return { error };
   } catch (error) {
     console.error(error);
     return { error: "Something went wrong." };
   }
 }
 
-export async function uploadFileDTO(parent: string, formData: FormData): Promise<{file?: StoredFile, error?: unknown}> {
+export async function uploadFileDTO(
+  parent: string,
+  formData: FormData,
+): Promise<{ file?: StoredFile; error?: unknown }> {
   try {
     if (await !isAuthenticated()) {
       return { error: "Unauthorized" };
@@ -143,7 +143,10 @@ export async function uploadFileDTO(parent: string, formData: FormData): Promise
   }
 }
 
-export async function shareFileDTO(fileId: string, email: string): Promise<{file?:string, error?:unknown}> {
+export async function shareFileDTO(
+  fileId: string,
+  email: string,
+): Promise<{ file?: string; error?: unknown }> {
   try {
     if (await !isAuthenticated()) {
       return { error: "Unauthorized" };

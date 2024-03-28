@@ -18,7 +18,7 @@ import { StoredFile } from "@/store/files";
 import { useToast } from "@/components/ui/use-toast";
 import { shareFileDTO } from "@/data/files";
 
-export function ShareFile({ file }: { file: StoredFile}) {
+export function ShareFile({ file }: { file: StoredFile }) {
   const { toast } = useToast();
   const [email, setEmail] = useState("");
 

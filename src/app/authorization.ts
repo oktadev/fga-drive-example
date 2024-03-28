@@ -51,26 +51,42 @@ export async function doCheck(
   return !!allowed;
 }
 
-export const canViewFile = async (user: string, file: string): Promise<boolean> =>
-  doCheck(`user:${user}`, "can_view", `file:${file}`);
+export const canViewFile = async (
+  user: string,
+  file: string,
+): Promise<boolean> => doCheck(`user:${user}`, "can_view", `file:${file}`);
 
-export const canViewFilesForParent = async (user: string, parent: string): Promise<boolean> =>
-  doCheck(`user:${user}`, "can_view", `folder:${parent}`);
+export const canViewFilesForParent = async (
+  user: string,
+  parent: string,
+): Promise<boolean> => doCheck(`user:${user}`, "can_view", `folder:${parent}`);
 
-export const canUploadFileForParent = async (user: string, parent: string): Promise<boolean> =>
+export const canUploadFileForParent = async (
+  user: string,
+  parent: string,
+): Promise<boolean> =>
   doCheck(`user:${user}`, "can_create_file", `folder:${parent}`);
 
-export const canShareFile = async (user: string, file: string): Promise<boolean> =>
-  doCheck(`user:${user}`, "can_share", `file:${file}`);
+export const canShareFile = async (
+  user: string,
+  file: string,
+): Promise<boolean> => doCheck(`user:${user}`, "can_share", `file:${file}`);
 
-export const canViewFolder = async (user: string, folder: string): Promise<boolean> =>
-  doCheck(`user:${user}`, "can_view", `folder:${folder}`);
+export const canViewFolder = async (
+  user: string,
+  folder: string,
+): Promise<boolean> => doCheck(`user:${user}`, "can_view", `folder:${folder}`);
 
-export const canCreateFolderForParent = async (user: string, parent: string): Promise<boolean> =>
+export const canCreateFolderForParent = async (
+  user: string,
+  parent: string,
+): Promise<boolean> =>
   doCheck(`user:${user}`, "can_create_folder", `folder:${parent}`);
 
-export const canShareFolder = async (user: string, folder: string): Promise<boolean> =>
-  doCheck(`user:${user}`, "can_share", `folder:${folder}`);
+export const canShareFolder = async (
+  user: string,
+  folder: string,
+): Promise<boolean> => doCheck(`user:${user}`, "can_share", `folder:${folder}`);
 
 export async function filterFilesForUser(
   files: Array<StoredFile>,
@@ -92,7 +108,7 @@ export async function filterFilesForUser(
         ? files.find(
             (file) => file?.id === stripObjectName(check._request.object),
           )
-        : undefined, 
+        : undefined,
     )
     .filter(Boolean) as Array<StoredFile>;
 }

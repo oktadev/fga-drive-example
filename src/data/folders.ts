@@ -1,11 +1,23 @@
-'use server';
+"use server";
 import { isAuthenticated } from "@/app/authentication";
-import { canCreateFolderForParent, canShareFolder, canViewFolder, filterFoldersForUser } from "@/app/authorization";
+import {
+  canCreateFolderForParent,
+  canShareFolder,
+  canViewFolder,
+  filterFoldersForUser,
+} from "@/app/authorization";
 import { getUserId } from "./user";
-import { createFolder, getFolder, getFolders, shareFolder } from "@/app/actions";
+import {
+  createFolder,
+  getFolder,
+  getFolders,
+  shareFolder,
+} from "@/app/actions";
 import { Folder } from "@/store/folders";
 
-export async function getFolderDTO(folderId: string): Promise<{folder?: {name: string | null, id: string}, error?: unknown}> {
+export async function getFolderDTO(
+  folderId: string,
+): Promise<{ folder?: { name: string | null; id: string }; error?: unknown }> {
   try {
     if (await !isAuthenticated()) {
       return { error: "Unauthorized" };
@@ -19,7 +31,7 @@ export async function getFolderDTO(folderId: string): Promise<{folder?: {name: s
     // Get the folder from our Vercel Key/Value Store
     const { folder, error } = await getFolder(folderId);
 
-    if(folder) {
+    if (folder) {
       return {
         folder: {
           name: folderId !== userId ? folder?.name : null,
@@ -27,14 +39,16 @@ export async function getFolderDTO(folderId: string): Promise<{folder?: {name: s
         },
       };
     }
-    return {error}
+    return { error };
   } catch (error) {
     console.error(error);
     return { error: "Something went wrong." };
   }
 }
 
-export async function getAllFoldersForParentDTO(parent: string): Promise<{folders?: Array<Folder>, error?: unknown}> {
+export async function getAllFoldersForParentDTO(
+  parent: string,
+): Promise<{ folders?: Array<Folder>; error?: unknown }> {
   try {
     if (await !isAuthenticated()) {
       return { error: "Unauthorized" };
@@ -48,43 +62,47 @@ export async function getAllFoldersForParentDTO(parent: string): Promise<{folder
     // Get all folders for the parent from our Vercel Key/Value Store
     const { folders, error } = await getFolders(parent);
 
-    if(folders) {
+    if (folders) {
       // Filter the folders for the ones we're allowed to see according to OpenFGA and return these
-    return { folders: await filterFoldersForUser(folders, userId) };
+      return { folders: await filterFoldersForUser(folders, userId) };
     }
-    
-    return {error}
+
+    return { error };
   } catch (error) {
     console.error(error);
     return { error: "Something went wrong." };
   }
 }
 
-
-export async function createFolderDTO(parent: string, name: string): Promise<{folder?: string, error?: unknown }> {
+export async function createFolderDTO(
+  parent: string,
+  name: string,
+): Promise<{ folder?: string; error?: unknown }> {
   try {
-    
     if (await !isAuthenticated()) {
       return { error: "Unauthorized" };
     }
-    
+
     const userId = await getUserId();
     if (await !canCreateFolderForParent(userId, parent)) {
       return { error: "Forbidden" };
     }
-    
-    return createFolder(parent, name, userId)
-  } catch(error){
-    return {error}
+
+    return createFolder(parent, name, userId);
+  } catch (error) {
+    return { error };
   }
 }
 
-export async function shareFolderDTO(folderId: string, email: string): Promise<{folder?:string, error?: unknown}> {
+export async function shareFolderDTO(
+  folderId: string,
+  email: string,
+): Promise<{ folder?: string; error?: unknown }> {
   try {
     if (await !isAuthenticated()) {
       return { error: "Unauthorized" };
     }
-    
+
     const userId = await getUserId();
     if (await !canShareFolder(userId, folderId)) {
       return { error: "Forbidden" };
@@ -92,6 +110,6 @@ export async function shareFolderDTO(folderId: string, email: string): Promise<{
 
     return shareFolder(folderId, email);
   } catch (error) {
-    return {error}
+    return { error };
   }
 }

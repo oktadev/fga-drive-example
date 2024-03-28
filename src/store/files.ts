@@ -12,7 +12,9 @@ export async function getFileFromStore(id: string): Promise<StoredFile> {
   return { ...(await kv.hgetall(`file:${id}`)), id } as StoredFile;
 }
 
-export async function getFilesFromStore(parent: string): Promise<Array<StoredFile>> {
+export async function getFilesFromStore(
+  parent: string,
+): Promise<Array<StoredFile>> {
   const filesForFolder = await kv.smembers(`folder-files:${parent}`);
   const promises: Array<Promise<Record<string, unknown> | null>> = [];
   filesForFolder.forEach((fileId) =>
@@ -31,7 +33,9 @@ export async function getFilesFromStore(parent: string): Promise<Array<StoredFil
     .filter(Boolean) as Array<StoredFile>;
 }
 
-export async function getFilesSubsetFromStore(subset: Array<string>): Promise<Array<StoredFile>> {
+export async function getFilesSubsetFromStore(
+  subset: Array<string>,
+): Promise<Array<StoredFile>> {
   const promises: Array<Promise<Record<string, unknown> | null>> = [];
   subset.forEach((fileId) => promises.push(kv.hgetall(`file:${fileId}`)));
 

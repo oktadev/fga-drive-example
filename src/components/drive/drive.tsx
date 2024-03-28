@@ -25,31 +25,34 @@ export default function Drive({
   droppable = true,
 }: DriveProps) {
   const { toast } = useToast();
-  const onDrop = useCallback(async (newFiles: Array<File>) => {
-    for (const file of newFiles) {
-      const formData = new FormData();
-      formData.append("file", file);
-      const { file: uploadedFile, error } = await uploadFileDTO(
-        folder?.id as string,
-        formData,
-      );
+  const onDrop = useCallback(
+    async (newFiles: Array<File>) => {
+      for (const file of newFiles) {
+        const formData = new FormData();
+        formData.append("file", file);
+        const { file: uploadedFile, error } = await uploadFileDTO(
+          folder?.id as string,
+          formData,
+        );
 
-      if (uploadedFile) {
-        toast({
-          title: "File upload complete!",
-          description: `The file ${uploadedFile?.name} has been successfully uploaded`,
-        });
-      }
+        if (uploadedFile) {
+          toast({
+            title: "File upload complete!",
+            description: `The file ${uploadedFile?.name} has been successfully uploaded`,
+          });
+        }
 
-      if (error) {
-        toast({
-          title: "Something went wrong uploading the file",
-          description: JSON.stringify(error),
-          variant: "destructive",
-        });
+        if (error) {
+          toast({
+            title: "Something went wrong uploading the file",
+            description: JSON.stringify(error),
+            variant: "destructive",
+          });
+        }
       }
-    }
-  }, [folder, toast]);
+    },
+    [folder, toast],
+  );
 
   if (droppable) {
     return (

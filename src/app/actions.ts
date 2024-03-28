@@ -27,7 +27,7 @@ import {
 } from "@/store/folders";
 
 export async function getFile(
-  fileId: string
+  fileId: string,
 ): Promise<{ file?: StoredFile; error?: unknown }> {
   try {
     return { file: await getFileFromStore(fileId) };
@@ -38,7 +38,7 @@ export async function getFile(
 }
 
 export async function getFiles(
-  parent: string
+  parent: string,
 ): Promise<{ files?: Array<StoredFile>; error?: unknown }> {
   try {
     return { files: await getFilesFromStore(parent) };
@@ -49,7 +49,7 @@ export async function getFiles(
 }
 
 export async function getFilesSubset(
-  subset: Array<string>
+  subset: Array<string>,
 ): Promise<{ files?: Array<StoredFile>; error?: unknown }> {
   try {
     return { files: await getFilesSubsetFromStore(subset) };
@@ -62,7 +62,7 @@ export async function getFilesSubset(
 export async function uploadFile(
   parent: string,
   file: File,
-  userId: string
+  userId: string,
 ): Promise<{ file?: StoredFile; error?: unknown }> {
   try {
     const fileBytes: ArrayBuffer = await file.arrayBuffer();
@@ -100,7 +100,7 @@ export async function uploadFile(
 
 export async function shareFile(
   file: string,
-  email: string
+  email: string,
 ): Promise<{ file?: string; error?: unknown }> {
   try {
     // Check the Auth0 management API for a user with the given email addres
@@ -125,7 +125,7 @@ export async function shareFile(
 }
 
 export async function getFolder(
-  folderId: string
+  folderId: string,
 ): Promise<{ folder?: Folder; error?: unknown }> {
   try {
     return { folder: await getFolderFromStore(folderId) };
@@ -136,7 +136,7 @@ export async function getFolder(
 }
 
 export async function getFolders(
-  parent: string
+  parent: string,
 ): Promise<{ folders?: Array<Folder>; error?: unknown }> {
   try {
     return { folders: await getFoldersFromStore(parent) };
@@ -149,7 +149,7 @@ export async function getFolders(
 export async function createFolder(
   parent: string,
   name: string,
-  userId: string
+  userId: string,
 ): Promise<{ folder?: string; error?: unknown }> {
   try {
     // Create a random and unique id for the new folder
@@ -179,7 +179,7 @@ export async function createFolder(
 
 export async function shareFolder(
   folder: string,
-  email: string
+  email: string,
 ): Promise<{ folder?: string; error?: unknown }> {
   try {
     // Check the Auth0 management API for a user with the given email addres

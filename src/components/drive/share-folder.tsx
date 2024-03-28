@@ -25,7 +25,10 @@ export function ShareFolder({ folder }: { folder: Folder | undefined }) {
   }
 
   async function handleShare(folderId: string) {
-    const { folder: sharedFolder, error } = await shareFolderDTO(folderId, email);
+    const { folder: sharedFolder, error } = await shareFolderDTO(
+      folderId,
+      email,
+    );
 
     if (sharedFolder) {
       toast({
@@ -73,7 +76,10 @@ export function ShareFolder({ folder }: { folder: Folder | undefined }) {
         </div>
         <DialogFooter>
           <DialogClose asChild>
-            <Button type="submit" onClick={() => handleShare(folder?.id as string)}>
+            <Button
+              type="submit"
+              onClick={() => handleShare(folder?.id as string)}
+            >
               Share
             </Button>
           </DialogClose>

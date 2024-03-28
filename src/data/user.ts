@@ -6,7 +6,11 @@ export async function getUserId(): Promise<string> {
   return session?.user?.sub;
 }
 
-export async function getUserDTO(): Promise<{sub: string, name: string, picture: string}> {
+export async function getUserDTO(): Promise<{
+  sub: string;
+  name: string;
+  picture: string;
+}> {
   const session = await getSession();
 
   return {
