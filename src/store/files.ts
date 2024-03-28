@@ -1,59 +1,63 @@
 import "server-only";
+import { kv } from "@vercel/kv";
 
 export interface StoredFile {
   name: string;
-  lastModified: number;
   fileName: string;
-  id: string;
-  owner: { name: string; sub: string };
+  lastModified: number;
   size: number;
-  parent: string;
+  id?: string;
 }
 
-export interface GetFileParams {
-  parent?: string;
-  subset?: Array<string|undefined>;
+export async function getFileFromStore(id: string): Promise<StoredFile> {
+  return { ...(await kv.hgetall(`file:${id}`)), id } as StoredFile;
 }
 
-let store: Array<StoredFile> = [];
+export async function getFilesFromStore(
+  parent: string,
+): Promise<Array<StoredFile>> {
+  const filesForFolder = await kv.smembers(`folder-files:${parent}`);
+  const promises: Array<Promise<Record<string, unknown> | null>> = [];
+  filesForFolder.forEach((fileId) =>
+    promises.push(kv.hgetall(`file:${fileId}`)),
+  );
 
-export function getFile(id: string): StoredFile | undefined {
-  return store.find((file: StoredFile) => file.id === id);
+  return (await Promise.all(promises))
+    ?.map((file, index) => {
+      if (!!file) {
+        return {
+          ...file,
+          id: filesForFolder[index],
+        };
+      }
+    })
+    .filter(Boolean) as Array<StoredFile>;
 }
 
-export function getFiles(
-  params?: GetFileParams,
-): Array<StoredFile | undefined> {
-  if (params?.subset) {
-    return store.filter((file: StoredFile) => params?.subset?.includes(file.id));
-  }
+export async function getFilesSubsetFromStore(
+  subset: Array<string>,
+): Promise<Array<StoredFile>> {
+  const promises: Array<Promise<Record<string, unknown> | null>> = [];
+  subset.forEach((fileId) => promises.push(kv.hgetall(`file:${fileId}`)));
 
-  if (params?.parent) {
-    return store.filter((file: StoredFile) => file.parent === params.parent);
-  }
-
-  return store;
+  return (await Promise.all(promises))
+    ?.map((file, index) => {
+      if (!!file) {
+        return {
+          ...file,
+          id: subset[index],
+        };
+      }
+    })
+    .filter(Boolean) as Array<StoredFile>;
 }
 
-export function createFile(file: StoredFile): StoredFile | undefined {
-  store = [...store, file];
-  return getFile(file.id);
-}
-
-export function editFile(
-  id: string,
-  updatedFile: StoredFile,
-): StoredFile | undefined {
-  store = store.map((file) => {
-    if (id === file.id) {
-      return { ...file, ...updatedFile };
-    }
-    return file;
-  });
-
-  return getFile(id);
-}
-
-export function deleteFile(id: string): void {
-  store = store.filter((file: StoredFile) => file.id !== id);
+export async function createFileInStore(
+  fileId: string,
+  parent: string,
+  file: StoredFile,
+): Promise<Array<StoredFile>> {
+  await kv.hset(`file:${fileId}`, { ...file });
+  await kv.sadd(`folder-files:${parent}`, fileId);
+  return await getFilesFromStore(parent);
 }

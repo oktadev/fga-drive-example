@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MenuIcon, SearchIcon } from "./icons";
-import { getSession } from "@auth0/nextjs-auth0";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import {
   DropdownMenu,
@@ -12,9 +11,10 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import Link from "next/link";
+import { getUserDTO } from "@/data/user";
 
 export default async function Header() {
-  const { user } = await getSession();
+  const { name, picture } = await getUserDTO();
 
   return (
     <header className="flex h-14 items-center gap-4 border-b px-6 dark:border-gray-800">
@@ -38,9 +38,9 @@ export default async function Header() {
         <DropdownMenu>
           <DropdownMenuTrigger>
             <Avatar>
-              <AvatarImage src={user.picture} alt={user.name} />
+              <AvatarImage src={picture} alt={name} />
               <AvatarFallback>
-                {user.name
+                {name
                   .split(" ")
                   .map((n) => n[0])
                   .join("")
@@ -49,7 +49,7 @@ export default async function Header() {
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuLabel>{user.name}</DropdownMenuLabel>
+            <DropdownMenuLabel>{name}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
               <Link href="/api/auth/logout">Logout</Link>

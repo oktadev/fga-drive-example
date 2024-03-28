@@ -8,7 +8,7 @@ import {
   UsersIcon,
 } from "./icons";
 
-export default function Navigation({current}: {current: string}) {
+export default function Navigation({ current }: { current: string }) {
   return (
     <div className="hidden w-[300px] border-r lg:block">
       <div className="flex h-full flex-col">
@@ -19,14 +19,14 @@ export default function Navigation({current}: {current: string}) {
         <div className="flex-1 overflow-auto py-2">
           <nav className="grid items-start px-4 text-sm font-medium">
             <Link
-              className={`flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50 ${current === 'folder' ? 'bg-gray-100  text-gray-900  transition-all hover:text-gray-900 dark:bg-gray-800 dark:text-gray-50' : 'rounded-lg  text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 '}`}
+              className={`flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50 ${current === "folder" ? "bg-gray-100  text-gray-900  transition-all hover:text-gray-900 dark:bg-gray-800 dark:text-gray-50" : "rounded-lg  text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 "}`}
               href="/folder"
             >
               <FolderIcon className="h-4 w-4" />
               My Drive
             </Link>
             <Link
-              className={`flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50 ${current === 'shared' ? 'bg-gray-100  text-gray-900  transition-all hover:text-gray-900 dark:bg-gray-800 dark:text-gray-50' : 'rounded-lg  text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 '}`}
+              className={`flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50 ${current === "shared" ? "bg-gray-100  text-gray-900  transition-all hover:text-gray-900 dark:bg-gray-800 dark:text-gray-50" : "rounded-lg  text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 "}`}
               href="/shared"
             >
               <UsersIcon className="h-4 w-4" />

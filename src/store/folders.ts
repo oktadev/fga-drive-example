@@ -1,54 +1,39 @@
 import "server-only";
+import { kv } from "@vercel/kv";
 
 export interface Folder {
   name: string;
-  id: string;
-  owner: { name: string; sub: string };
+  id?: string;
   parent: string;
 }
 
-interface GetFolderParams {
-  subset: Array<string>;
-  parent: String;
+export async function getFolderFromStore(id: string): Promise<Folder> {
+  return { ...(await kv.hgetall(`folder:${id}`)), id } as Folder;
 }
 
-let store: Array<Folder> = [];
+export async function getFoldersFromStore(
+  parent: string,
+): Promise<Array<Folder>> {
+  const foldersForFolder = await kv.smembers(`folder-folders:${parent}`);
+  const promises: Array<Promise<Record<string, unknown> | null>> = [];
+  foldersForFolder.forEach((folderId) =>
+    promises.push(kv.hgetall(`folder:${folderId}`)),
+  );
 
-export function getFolder(id: string): Folder | undefined {
-  return store.find((folder: Folder) => folder.id === id);
+  return (await Promise.all(promises)).map(
+    (folder: Record<string, unknown> | null, index: number) => ({
+      ...folder,
+      id: foldersForFolder[index],
+    }),
+  ) as Array<Folder>;
 }
 
-export function getFolders(params: GetFolderParams): Array<Folder | undefined> {
-  if (params?.subset) {
-    return store.filter((folder: Folder) => params?.subset.includes(folder.id));
-  }
-
-  if (params?.parent) {
-    return store.filter((folder: Folder) => folder?.parent === params?.parent);
-  }
-
-  return store;
-}
-
-export function createFolder(folder: Folder): Folder | undefined {
-  store = [...store, folder];
-  return getFolder(folder.id);
-}
-
-export function editFolder(
-  id: string,
-  updatedFolder: Folder,
-): Folder | undefined {
-  store = store.map((folder) => {
-    if (id === folder.id) {
-      return { ...folder, ...updatedFolder };
-    }
-    return folder;
-  });
-
-  return getFolder(id);
-}
-
-export function deleteFolder(id: string): void {
-  store = store.filter((folder: Folder) => folder.id !== id);
+export async function createFolderInStore(
+  folderId: string,
+  parent: string,
+  folder: Folder,
+) {
+  await kv.hset(`folder:${folderId}`, { ...folder });
+  await kv.sadd(`folder-folders:${parent}`, folderId);
+  return await getFolderFromStore(parent);
 }
