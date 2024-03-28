@@ -4,7 +4,7 @@ import Header from "@/components/header";
 import { getUserId } from "@/data/user";
 import { DriveHeader } from "@/components/drive/header";
 import { Error } from "@/components/error";
-import { getFiles, getFolder, getFolders } from "../actions";
+import { getFiles, getFolder, getFolders } from "@/app/actions";
 
 export const dynamic = "force-dynamic";
 export default async function Page() {

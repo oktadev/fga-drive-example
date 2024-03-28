@@ -6,7 +6,7 @@ import {
   StarIcon,
   TrashIcon,
   UsersIcon,
-} from "./icons";
+} from "@/components/icons";
 
 export default function Navigation({ current }: { current: string }) {
   return (

@@ -8,7 +8,7 @@ import {
   canViewFolder,
   filterFoldersForUser,
 } from "@/app/authorization";
-import { getUserId } from "./user";
+import { getUserId } from "@/data/user";
 import {
   Folder,
   createFolderInStore,

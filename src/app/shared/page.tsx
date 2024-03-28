@@ -3,7 +3,7 @@ import Header from "@/components/header";
 import { DriveHeader } from "@/components/drive/header";
 import Drive from "@/components/drive/drive";
 import { Error } from "@/components/error";
-import { getSharedFiles } from "../actions";
+import { getSharedFiles } from "@/app/actions";
 
 export const dynamic = "force-dynamic";
 export default async function Page() {

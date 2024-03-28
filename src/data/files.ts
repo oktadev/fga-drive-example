@@ -9,7 +9,7 @@ import {
   filterFilesForUser,
   listSharedFiles,
 } from "@/app/authorization";
-import { getUserId } from "./user";
+import { getUserId } from "@/data/user";
 import { stripObjectName } from "@/helpers/strip-object-name";
 import {
   StoredFile,

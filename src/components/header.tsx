@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MenuIcon, SearchIcon } from "./icons";
-import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
+import { MenuIcon, SearchIcon } from "@/components/icons";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,7 +9,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { getUserDTO } from "@/data/user";
 
