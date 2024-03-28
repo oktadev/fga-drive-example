@@ -60,7 +60,7 @@ You can execute the following command to generate a suitable string for the AUTH
 node -e "console.log(crypto.randomBytes(32).toString('hex'))"
 ```
 
-## OpenFGA or Okta FGA
+## `3` OpenFGA or Okta FGA
 You have the choice of either use the Open source OpenFGA or the Managed Okta FGA authorization engine to make our access controll descisions. Both use the same SDK, so once set-up, you application can connec to either choice.
 
 #### OpenFGA
