@@ -2,20 +2,18 @@ import Navigation from "@/components/navigation";
 import Drive from "@/components/drive/drive";
 import Header from "@/components/header";
 import { getUserId } from "@/data/user";
-import { getAllFilesForParentDTO } from "@/data/files";
-import { getAllFoldersForParentDTO, getFolderDTO } from "@/data/folders";
 import { DriveHeader } from "@/components/drive/header";
 import { Error } from "@/components/error";
+import { getFiles, getFolder, getFolders } from "../actions";
 
 export const dynamic = "force-dynamic";
 export default async function Page() {
   const userId = await getUserId();
   const parent = userId; // If we're in the root folder, the parent folder is the user's ID
-  const { files, error: filesError } = await getAllFilesForParentDTO(parent);
-  const { folders, error: foldersError } =
-    await getAllFoldersForParentDTO(parent);
+  const { files, error: filesError } = await getFiles(parent);
+  const { folders, error: foldersError } = await getFolders(parent);
   const { folder: currentFolder, error: currentFolderErrror } =
-    await getFolderDTO(parent);
+    await getFolder(parent);
 
   return (
     <div className="flex min-h-screen w-full bg-gray-100/40 dark:bg-gray-800/40">

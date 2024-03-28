@@ -14,8 +14,8 @@ import { Input } from "@/components/ui/input";
 import { ShareIcon } from "@/components/icons";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { shareFolderDTO } from "@/data/folders";
 import { Folder } from "@/store/folders";
+import { shareFolder } from "@/app/actions";
 export function ShareFolder({ folder }: { folder: Folder | undefined }) {
   const { toast } = useToast();
   const [email, setEmail] = useState("");
@@ -25,10 +25,7 @@ export function ShareFolder({ folder }: { folder: Folder | undefined }) {
   }
 
   async function handleShare(folderId: string) {
-    const { folder: sharedFolder, error } = await shareFolderDTO(
-      folderId,
-      email,
-    );
+    const { folder: sharedFolder, error } = await shareFolder(folderId, email);
 
     if (sharedFolder) {
       toast({

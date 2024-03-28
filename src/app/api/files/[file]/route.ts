@@ -5,6 +5,7 @@ import { readFile } from "fs/promises";
 import mime from "mime";
 import { NextRequest, NextResponse } from "next/server";
 import { canViewFile } from "@/app/authorization";
+import { getFile } from "@/app/actions";
 
 export const dynamic = "force-dynamic";
 export const GET = async function (
@@ -18,12 +19,18 @@ export const GET = async function (
 
     // If we're allowed to see the file, return it
     if (await canViewFile(user?.sub, fileId)) {
-      const file = await getFileFromStore(params?.file);
-      const filePath = `${process.cwd()}/upload/${file?.fileName}`;
-      const mimeType = mime.getType(filePath);
-      const data = await readFile(filePath);
-      return new NextResponse(data, {
-        headers: { "content-type": mimeType ?? "text/plain" },
+      const { file, error } = await getFile(params?.file);
+
+      if (file) {
+        const filePath = `${process.cwd()}/upload/${file?.fileName}`;
+        const mimeType = mime.getType(filePath);
+        const data = await readFile(filePath);
+        return new NextResponse(data, {
+          headers: { "content-type": mimeType ?? "text/plain" },
+        });
+      }
+      return new NextResponse(`Error: ${error}`, {
+        status: 500,
       });
     }
 

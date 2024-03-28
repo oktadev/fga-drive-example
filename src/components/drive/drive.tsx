@@ -9,7 +9,8 @@ import { DriveTable } from "@/components/drive/table";
 import { DriveFolder } from "@/components/drive/folder";
 import { DriveFile } from "@/components/drive/file";
 import { Folder } from "@/store/folders";
-import { ReadableStoredFile, uploadFileDTO } from "@/data/files";
+import { ReadableStoredFile } from "@/data/files";
+import { uploadFile } from "@/app/actions";
 
 export interface DriveProps {
   files: Array<ReadableStoredFile> | undefined;
@@ -30,7 +31,7 @@ export default function Drive({
       for (const file of newFiles) {
         const formData = new FormData();
         formData.append("file", file);
-        const { file: uploadedFile, error } = await uploadFileDTO(
+        const { file: uploadedFile, error } = await uploadFile(
           folder?.id as string,
           formData,
         );

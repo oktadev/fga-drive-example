@@ -16,7 +16,7 @@ import { ShareIcon } from "@/components/icons";
 import { useState } from "react";
 import { StoredFile } from "@/store/files";
 import { useToast } from "@/components/ui/use-toast";
-import { shareFileDTO } from "@/data/files";
+import { shareFile } from "@/app/actions";
 
 export function ShareFile({ file }: { file: StoredFile }) {
   const { toast } = useToast();
@@ -27,7 +27,7 @@ export function ShareFile({ file }: { file: StoredFile }) {
   }
 
   async function handleShare(fileId: string) {
-    const { file: sharedFile, error } = await shareFileDTO(fileId, email);
+    const { file: sharedFile, error } = await shareFile(fileId, email);
 
     if (sharedFile) {
       toast({

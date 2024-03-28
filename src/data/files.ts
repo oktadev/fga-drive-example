@@ -1,13 +1,7 @@
-"use server";
-
+import "server-only";
 import {
-  getFile,
-  getFiles,
-  getFilesSubset,
-  shareFile,
-  uploadFile,
-} from "@/app/actions";
-import {
+  authorizeNewFile,
+  authorizeNewSharedFile,
   canShareFile,
   canUploadFileForParent,
   canViewFile,
@@ -17,8 +11,15 @@ import {
 } from "@/app/authorization";
 import { getUserId } from "./user";
 import { stripObjectName } from "@/helpers/strip-object-name";
-import { StoredFile } from "@/store/files";
+import {
+  StoredFile,
+  createFileInStore,
+  getFileFromStore,
+  getFilesFromStore,
+  getFilesSubsetFromStore,
+} from "@/store/files";
 import { isAuthenticated } from "@/app/authentication";
+import { auth0ManagementClient } from "@/helpers/auth0-management";
 
 export async function getFileDTO(
   fileId: string,
@@ -33,7 +34,13 @@ export async function getFileDTO(
       return { error: "Forbidden" };
     }
 
-    return getFile(fileId);
+    const file = await getFileFromStore(fileId);
+
+    if (file) {
+      return { file };
+    }
+
+    return { error: "No file found" };
   } catch (error) {
     return { error };
   }
@@ -61,7 +68,7 @@ export async function getAllFilesForParentDTO(parent: string): Promise<{
     }
 
     // Get all saved files
-    const { files, error } = await getFiles(parent);
+    const files = await getFilesFromStore(parent);
 
     if (files) {
       // Filter all files for the ones we're allowed to see according to OpenFGA
@@ -79,7 +86,8 @@ export async function getAllFilesForParentDTO(parent: string): Promise<{
         })),
       };
     }
-    return { error };
+
+    return { error: "No files found" };
   } catch (error) {
     console.error(error);
     return { error: "Something went wrong." };
@@ -99,13 +107,13 @@ export async function getAllSharedFilesDTO(): Promise<{
     // List all files that are shared with the current user in OpenFGA
     const sharedFiles = await listSharedFiles(userId);
     // Get all shared files from our our Vercel Key/Value Store
-    const { files, error } = await getFilesSubset(
+    const files = await getFilesSubsetFromStore(
       sharedFiles?.objects?.map((file) => stripObjectName(file)),
     );
 
     if (files) {
       return {
-        files: files?.map((file) => ({
+        files: files?.map((file: StoredFile) => ({
           ...file,
           lastModified: `${new Date(
             Number(file?.lastModified),
@@ -116,7 +124,7 @@ export async function getAllSharedFilesDTO(): Promise<{
       };
     }
 
-    return { error };
+    return { error: "No shared files" };
   } catch (error) {
     console.error(error);
     return { error: "Something went wrong." };
@@ -124,9 +132,10 @@ export async function getAllSharedFilesDTO(): Promise<{
 }
 
 export async function uploadFileDTO(
+  fileId: string,
   parent: string,
-  formData: FormData,
-): Promise<{ file?: StoredFile; error?: unknown }> {
+  storedFile: StoredFile,
+): Promise<{ files?: Array<StoredFile>; error?: unknown }> {
   try {
     if (await !isAuthenticated()) {
       return { error: "Unauthorized" };
@@ -137,15 +146,23 @@ export async function uploadFileDTO(
       return { error: "Forbidden" };
     }
 
-    const file: File = formData.get("file") as unknown as File;
-    return uploadFile(parent, file, userId);
+    const files = await createFileInStore(fileId, parent, storedFile);
+
+    if (files) {
+      // Write OpenFGA tupples for the new file
+      await authorizeNewFile(fileId, userId, parent);
+
+      return { files };
+    }
+
+    return { error: "No files uploaded" };
   } catch (error) {
     return { error };
   }
 }
 
 export async function shareFileDTO(
-  fileId: string,
+  file: string,
   email: string,
 ): Promise<{ file?: string; error?: unknown }> {
   try {
@@ -154,11 +171,28 @@ export async function shareFileDTO(
     }
 
     const userId = await getUserId();
-    if (await !canShareFile(userId, fileId)) {
+    if (await !canShareFile(userId, file)) {
       return { error: "Forbidden" };
     }
 
-    return shareFile(fileId, email);
+    try {
+      // Check the Auth0 management API for a user with the given email addres
+      const { data } = await auth0ManagementClient.usersByEmail.getByEmail({
+        email,
+        fields: "user_id",
+      });
+
+      // No known user with the email addresss, return an error
+      if (data.length === 0) {
+        return { error: "A user with this email address does not exist." };
+      }
+
+      // Write a new OpenFGA tupple to share the file
+      await authorizeNewSharedFile(file, data[0].user_id);
+      return { file };
+    } catch (error) {
+      return { error };
+    }
   } catch (error) {
     return { error };
   }

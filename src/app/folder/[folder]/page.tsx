@@ -1,21 +1,17 @@
 import Navigation from "@/components/navigation";
 import Drive from "@/components/drive/drive";
 import Header from "@/components/header";
-import { getAllFilesForParentDTO } from "@/data/files";
-import { getAllFoldersForParentDTO, getFolderDTO } from "@/data/folders";
 import { DriveHeader } from "@/components/drive/header";
 import { Error } from "@/components/error";
+import { getFiles, getFolder, getFolders } from "@/app/actions";
 
 export const dynamic = "force-dynamic";
 export default async function Page({ params }: { params: { folder: string } }) {
-  const { files, error: filesError } = await getAllFilesForParentDTO(
+  const { files, error: filesError } = await getFiles(params.folder);
+  const { folders, error: foldersError } = await getFolders(params.folder);
+  const { folder: currentFolder, error: currentFolderErrror } = await getFolder(
     params.folder,
   );
-  const { folders, error: foldersError } = await getAllFoldersForParentDTO(
-    params.folder,
-  );
-  const { folder: currentFolder, error: currentFolderErrror } =
-    await getFolderDTO(params.folder);
 
   return (
     <div className="flex min-h-screen w-full bg-gray-100/40 dark:bg-gray-800/40">

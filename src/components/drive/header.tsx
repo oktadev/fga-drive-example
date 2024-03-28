@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
-import { createFolderDTO } from "@/data/folders";
+import { createFolder } from "@/app/actions";
 
 export function DriveHeader({
   name,
@@ -36,8 +36,8 @@ export function DriveHeader({
   }
 
   async function handleCreateFolder() {
-    if (!!createFolderHandler && parent) {
-      const { folder, error } = await createFolderDTO(parent, newFolderName);
+    if (!!parent) {
+      const { folder, error } = await createFolder(parent, newFolderName);
 
       if (folder) {
         toast({

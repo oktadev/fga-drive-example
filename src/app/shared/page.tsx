@@ -2,12 +2,12 @@ import Navigation from "@/components/navigation";
 import Header from "@/components/header";
 import { DriveHeader } from "@/components/drive/header";
 import Drive from "@/components/drive/drive";
-import { getAllSharedFilesDTO } from "@/data/files";
 import { Error } from "@/components/error";
+import { getSharedFiles } from "../actions";
 
 export const dynamic = "force-dynamic";
 export default async function Page() {
-  const { files, error } = await getAllSharedFilesDTO();
+  const { files, error } = await getSharedFiles();
 
   return (
     <div className="flex min-h-screen w-full bg-gray-100/40 dark:bg-gray-800/40">
