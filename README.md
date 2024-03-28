@@ -169,7 +169,7 @@ The application does the following OpenFGA \ Okta FGA checks
 Go to the [Vercel dashboard](https://vercel.com/) and create a new KV store.
 You can copy the below `.env` variables from the **getting started** page of your store.
 
-#### Vervel KV environment
+#### Vercel KV environment
 ```bash
 KV_URL="redis://****.upstash.io:****"
 KV_REST_API_URL="https://****.upstash.io"
