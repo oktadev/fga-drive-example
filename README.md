@@ -166,7 +166,7 @@ The application does the following OpenFGA \ Okta FGA checks
 
 
 ## `4` Configure Vercel KV
-Go to the [Vercel dashboard](https://vercel.com/) and create a new store.
+Go to the [Vercel dashboard](https://vercel.com/) and create a new KV store.
 You can copy the below `.env` variables from the **getting started** page of your store.
 
 #### Vervel KV environment
