@@ -1,6 +1,7 @@
-This is a simple Google Drive clone to demonstrate how to use [OpenFGA](https://openfga.dev) or [Okta FGA](https://fga.dev) to handle Fine Grained Authorization on a per-resource level.
+# Google Drive - style application
+This is a simplified Google Drive application to demonstrate how to use [OpenFGA](https://openfga.dev) or [Okta FGA](https://fga.dev) to handle Fine Grained Authorization on a per-resource level.
 
-A user can login, add files (pictures only), create folders and they should be only visible to them. They can choose to either share a file directly with other users or share folders (or subfolders), and all files contained within these will be shared automatically.
+A user can login, add files (pictures only), create folders. Uploaded files are only visible to them by defaullt. They can choose to either share a file directly with other users or share folders (or subfolders), and all files contained within these will be shared automatically. Files can be shared with other users available in the Auth0 tenant, the application will look for them based on their email address.
 
 This demo uses both Auth0 ([create a free account here](https://auth0.com)), and either [OpenFGA](https://openfga.dev) or it's hosted and managed version [Okta FGA](https://fga.dev).
 
@@ -8,7 +9,7 @@ The data is stored in a [Vercel KV store](https://vercel.com/docs/storage/vercel
 
 ![A preview of the demo application showing a Google Drive Style interface](./preview.png)
 
-## Getting Started
+## `1` Getting Started
 
 Copy the `.env.sample` file to `.env.local`, and fill in the missing environment variables
 
@@ -30,11 +31,66 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## OpenFGA Model
+## `2` Configure Auth0
+Go to the [Auth0 dashboard](https://manage.auth0.com/) and create a new application of type **Regular Web Application**.
+2. Go to the settings page of the application
+3. Configure the following settings:
+   - **Allowed Callback URLs**: Should be set to `http://localhost:3000/` when testing locally or typically to `https://myapp.com/` when deploying your application.
+   - **Allowed Logout URLs**: Should be set to `http://localhost:3000/` when testing locally or typically to `https://myapp.com/` when deploying your application.
+   - **Allowed Web Origins**: Should be set to `http://localhost:3000` when testing locally or typically to `https://myapp.com/` when deploying your application.
+4. Save the settings.
 
+#### Auth0 environment
+```bash
+# A long, secret value used to encrypt the session cookie
+AUTH0_SECRET='LONG_RANDOM_VALUE'
+# The base url of your application
+AUTH0_BASE_URL='http://localhost:3000'
+# The url of your Auth0 tenant domain
+AUTH0_ISSUER_BASE_URL='https://YOUR_AUTH0_DOMAIN.auth0.com'
+# Your Auth0 application's Client ID
+AUTH0_CLIENT_ID='YOUR_AUTH0_CLIENT_ID'
+# Your Auth0 application's Client Secret
+AUTH0_CLIENT_SECRET='YOUR_AUTH0_CLIENT_SECRET'
+```
+
+You can execute the following command to generate a suitable string for the AUTH0_SECRET value:
+
+```javascript
+node -e "console.log(crypto.randomBytes(32).toString('hex'))"
+```
+
+## OpenFGA or Okta FGA
+You have the choice of either use the Open source OpenFGA or the Managed Okta FGA authorization engine to make our access controll descisions. Both use the same SDK, so once set-up, you application can connec to either choice.
+
+#### OpenFGA
+To run your OpenFGA server locally, follow the steps described on [this page](https://openfga.dev/docs/getting-started/setup-openfga/overview)
+
+#### Okta FGA
+To use Okta FGA, use your Auth0 account to login to [dashboard.fga.dev](https://dashboard.fga.dev/)
+
+#### OpenFGA / Okta FGA environment
+```bash
+# The url of your OpenFGA / Okta FGA server
+FGA_API_URL='https://localhost:8080' or 'https://api.[region].fga.dev'
+# The store ID found in your OpenFGA / Okta FGA Dashboard under settings
+FGA_STORE_ID=
+# The authorization model ID found in your OpenFGA / Okta FGA Dashboard under settings. This model ID changes with each change to the model
+FGA_AUTHORIZATION_MODEL_ID=
+# The FGA token issuer
+FGA_API_TOKEN_ISSUER='http://localhost:8080' or 'fga.us.auth0.com'
+# The API audience
+FGA_API_AUDIENCE='https://localhost:8080' or 'https://api.[region].fga.dev'
+# The client ID found in your OpenFGA / Okta FGA Dashboard under settings
+FGA_CLIENT_ID=
+# The client secret found in your OpenFGA / Okta FGA Dashboard under settings
+FGA_CLIENT_SECRET=
+```
+
+#### OpenFGA Model
 The OpenFGA model used for this application looks similar to the Google Drive Example on the [OpenFGA Playground](https://openfga.dev/docs/getting-started/setup-openfga/playground), with some minor tweaks.
 
-The application currently does not implement all functionality like share or edit, this might be added in the future.
+The application currently does not implement all functionality like edit or delete files and folders, this might be added in the future.
 
 ```
 model
@@ -65,9 +121,10 @@ type folder
     define viewer: [user, user:*] or owner or viewer from parent
 ```
 
-The application does the following checks
+#### OpenFGA / Okta FGA checks
+The application does the following OpenFGA \ Okta FGA checks
 
-### Files
+##### Files
 
 - Requesting a file
   - Check if the current user has a `can_view` relationship to a file
@@ -87,7 +144,7 @@ The application does the following checks
 - Deleting a file
   - TBD
 
-### Folders
+##### Folders
 
 - Requesting a folder
   - Check if the current user has a `can_view` relationship to the folder
