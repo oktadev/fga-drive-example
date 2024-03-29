@@ -234,7 +234,7 @@ sequenceDiagram;
   Next.js Server Actions->>Next.js Application: Return files
 ```
 
-#### Upload a file
+### Upload a file
 
 ```mermaid
 sequenceDiagram;
@@ -257,7 +257,7 @@ sequenceDiagram;
   Next.js Server Actions->>Next.js Application: Return files
 ```
 
-#### Share a file
+### Share a file
 
 ```mermaid
 sequenceDiagram;
@@ -320,7 +320,7 @@ sequenceDiagram;
   Next.js Server Actions->>Next.js Application: Return folders
 ```
 
-#### Create a folder
+### Create a folder
 
 ```mermaid
 sequenceDiagram;
@@ -342,7 +342,7 @@ sequenceDiagram;
   Next.js Server Actions->>Next.js Application: Return folder name
 ```
 
-#### Share a folder
+### Share a folder
 
 ```mermaid
 sequenceDiagram;
