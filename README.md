@@ -244,7 +244,7 @@ sequenceDiagram;
   participant Uploads folder
   participant Auth0
   participant OpenFGA
-  Next.js Application->>Next.js Server Actions: Upload file action
+  Next.js Page->>Next.js Server Actions: Upload file action
   Next.js Server Actions->>Data Access Layer (DAL): Pass the uploaded file
   Data Access Layer (DAL)--)Auth0: Authentication Check
   Data Access Layer (DAL)--)OpenFGA: Authorization Check for parent folder (user, can_create_file, folder)
