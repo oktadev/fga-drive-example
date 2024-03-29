@@ -1,10 +1,6 @@
 "use server";
 import "server-only";
 import { v4 as uuidv4 } from "uuid";
-import { extname } from "path";
-import { getFileHash } from "@/helpers/hash";
-import { Hash } from "crypto";
-import { writeFile } from "fs/promises";
 import { revalidatePath } from "next/cache";
 import { StoredFile } from "@/store/files";
 import { Folder } from "@/store/folders";
@@ -76,34 +72,17 @@ export async function getSharedFiles(): Promise<{
 export async function uploadFile(
   parent: string,
   formData: FormData,
-): Promise<{ file?: StoredFile; error?: unknown }> {
+): Promise<{ files?: Array<StoredFile>; error?: unknown }> {
   try {
-    const file: File = formData.get("file") as unknown as File;
-    const fileBytes: ArrayBuffer = await file.arrayBuffer();
-    const fileBuffer: Buffer = Buffer.from(fileBytes);
-    const fileId = uuidv4();
-    const fileHash: Hash = getFileHash(fileBuffer);
-    const fileExtension: string = extname(file.name);
-    const filePath: string = `${process.cwd()}/upload/${fileHash.toString()}${fileExtension}`;
-    const fileSize: number = Buffer.byteLength(fileBuffer);
-    const uploadedFile: StoredFile = {
-      name: file.name,
-      lastModified: file.lastModified,
-      fileName: `${fileHash}${fileExtension}`,
-      size: fileSize,
-    };
-
-    // Save the file to the /upload folder, this should probably be saved in a static file store like Vercel Blob Storage of AWS S3 in the real world
-    await writeFile(filePath, fileBuffer);
-
     // Store the files metadata in our Vercel Key/Value Store
-    const { files, error } = await uploadFileDTO(fileId, parent, uploadedFile);
+    const file: File = formData.get("file") as unknown as File;
+    const { files, error } = await uploadFileDTO(parent, file);
 
     if (files) {
       // If the parent folder is equal to our userId, we're in the root folder and we'll revalidate /folder,
       // If it's not we'll revalidate the sub-folder's route /folder/[parent]
       revalidatePath(`/folder${parent ?? `/${parent}`}`);
-      return { file: uploadedFile };
+      return { files };
     }
     return { error };
   } catch (error) {

@@ -1,4 +1,5 @@
 # Google Drive - style application
+
 This is a simplified Google Drive application to demonstrate how to use [OpenFGA](https://openfga.dev) or [Okta FGA](https://fga.dev) to handle Fine Grained Authorization on a per-resource level.
 
 A user can login, add files (pictures only), create folders. Uploaded files are only visible to them by defaullt. They can choose to either share a file directly with other users or share folders (or subfolders), and all files contained within these will be shared automatically. Files can be shared with other users available in the Auth0 tenant, the application will look for them based on their email address.
@@ -32,15 +33,17 @@ npm run dev
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 ## `2` Configure Auth0
-Go to the [Auth0 dashboard](https://manage.auth0.com/) and create a new application of type **Regular Web Application**.
-2. Go to the settings page of the application
-3. Configure the following settings:
-   - **Allowed Callback URLs**: Should be set to `http://localhost:3000/` when testing locally or typically to `https://myapp.com/` when deploying your application.
-   - **Allowed Logout URLs**: Should be set to `http://localhost:3000/` when testing locally or typically to `https://myapp.com/` when deploying your application.
-   - **Allowed Web Origins**: Should be set to `http://localhost:3000` when testing locally or typically to `https://myapp.com/` when deploying your application.
+
+Go to the [Auth0 dashboard](https://manage.auth0.com/) and create a new application of type **Regular Web Application**. 2. Go to the settings page of the application 3. Configure the following settings:
+
+- **Allowed Callback URLs**: Should be set to `http://localhost:3000/` when testing locally or typically to `https://myapp.com/` when deploying your application.
+- **Allowed Logout URLs**: Should be set to `http://localhost:3000/` when testing locally or typically to `https://myapp.com/` when deploying your application.
+- **Allowed Web Origins**: Should be set to `http://localhost:3000` when testing locally or typically to `https://myapp.com/` when deploying your application.
+
 4. Save the settings.
 
 #### Auth0 environment
+
 ```bash
 # A long, secret value used to encrypt the session cookie
 AUTH0_SECRET='LONG_RANDOM_VALUE'
@@ -61,15 +64,19 @@ node -e "console.log(crypto.randomBytes(32).toString('hex'))"
 ```
 
 ## `3` OpenFGA or Okta FGA
+
 You have the choice of either use the Open source OpenFGA or the Managed Okta FGA authorization engine to make our access controll descisions. Both use the same SDK, so once set-up, you application can connec to either choice.
 
 #### OpenFGA
+
 To run your OpenFGA server locally, follow the steps described on [this page](https://openfga.dev/docs/getting-started/setup-openfga/overview)
 
 #### Okta FGA
+
 To use Okta FGA, use your Auth0 account to login to [dashboard.fga.dev](https://dashboard.fga.dev/)
 
 #### OpenFGA / Okta FGA environment
+
 ```bash
 # The url of your OpenFGA / Okta FGA server
 FGA_API_URL='https://localhost:8080' or 'https://api.[region].fga.dev'
@@ -88,6 +95,7 @@ FGA_CLIENT_SECRET=
 ```
 
 #### OpenFGA Model
+
 The OpenFGA model used for this application looks similar to the Google Drive Example on the [OpenFGA Playground](https://openfga.dev/docs/getting-started/setup-openfga/playground), with some minor tweaks.
 
 The application currently does not implement all functionality like edit or delete files and folders, this might be added in the future.
@@ -122,6 +130,7 @@ type folder
 ```
 
 #### OpenFGA / Okta FGA checks
+
 The application does the following OpenFGA \ Okta FGA checks
 
 ##### Files
@@ -164,15 +173,189 @@ The application does the following OpenFGA \ Okta FGA checks
 - Deleting a folder
   - TBD
 
-
 ## `4` Configure Vercel KV
+
 Go to the [Vercel dashboard](https://vercel.com/) and create a new KV store.
 You can copy the below `.env` variables from the **getting started** page of your store.
 
 #### Vercel KV environment
+
 ```bash
 KV_URL="redis://****.upstash.io:****"
 KV_REST_API_URL="https://****.upstash.io"
 KV_REST_API_TOKEN="****"
 KV_REST_API_READ_ONLY_TOKEN="****"
+```
+
+## '5' Architecture
+
+### Get a file
+
+```mermaid
+sequenceDiagram;
+  participant Next.js Application
+  participant Next.js Server Actions
+  participant Data Access Layer (DAL)
+  participant Vercel KV
+  participant Uploads folder
+  participant Auth0
+  participant OpenFGA
+  Next.js Application->>Next.js Server Actions: Request file action
+  Next.js Server Actions->>Data Access Layer (DAL): Pass get file request
+  Data Access Layer (DAL)--)Auth0: Authentication Check
+  Data Access Layer (DAL)--)OpenFGA: Authorization Check for file (user, can_view, file)
+  Data Access Layer (DAL)->>Vercel KV: Look for file in the store
+  Vercel KV->>Data Access Layer (DAL): Return file location
+  Data Access Layer (DAL)->>Next.js Server Actions: Return file location
+  Next.js Server Actions->>Next.js Application: Return file location
+  Next.js Application->>Uploads folder: Request file
+  Uploads folder->>Next.js Application: Display file
+```
+
+### Get files for folder
+
+```mermaid
+sequenceDiagram;
+  participant Next.js Application
+  participant Next.js Server Actions
+  participant Data Access Layer (DAL)
+  participant Vercel KV
+  participant Uploads folder
+  participant Auth0
+  participant OpenFGA
+  Next.js Application->>Next.js Server Actions: Request files action
+  Next.js Server Actions->>Data Access Layer (DAL): Pass get files request
+  Data Access Layer (DAL)--)Auth0: Authentication Check
+  Data Access Layer (DAL)--)OpenFGA: Authorization Check for parent folder (user,can_view, folder)
+  Data Access Layer (DAL)->>Vercel KV: Look for files in the store
+  Data Access Layer (DAL)--)OpenFGA: Check Authorization for each file (user, can_view, file)
+  Vercel KV->>Data Access Layer (DAL): Return files
+  Data Access Layer (DAL)->>Next.js Server Actions: Return files
+  Next.js Server Actions->>Next.js Application: Return files
+```
+
+#### Upload a file
+
+```mermaid
+sequenceDiagram;
+  participant Next.js Application
+  participant Next.js Server Actions
+  participant Data Access Layer (DAL)
+  participant Vercel KV
+  participant Uploads folder
+  participant Auth0
+  participant OpenFGA
+  Next.js Application->>Next.js Server Actions: Upload file action
+  Next.js Server Actions->>Data Access Layer (DAL): Pass the uploaded file
+  Data Access Layer (DAL)--)Auth0: Authentication Check
+  Data Access Layer (DAL)--)OpenFGA: Authorization Check for parent folder (user, can_create_file, folder)
+  Data Access Layer (DAL)->>Uploads folder: Upload image file
+  Data Access Layer (DAL)->>Vercel KV: Store image metadata
+  Data Access Layer (DAL)--)OpenFGA: Create new tuple (user, owner, file)
+  Data Access Layer (DAL)--)OpenFGA: Create new tuple (parent folder, parent, file)
+  Data Access Layer (DAL)->>Next.js Server Actions: Return files
+  Next.js Server Actions->>Next.js Application: Return files
+```
+
+#### Share a file
+
+```mermaid
+sequenceDiagram;
+  participant Next.js Application
+  participant Next.js Server Actions
+  participant Data Access Layer (DAL)
+  participant Vercel KV
+  participant Uploads folder
+  participant Auth0
+  participant OpenFGA
+  Next.js Application->>Next.js Server Actions: Share file action
+  Next.js Server Actions->>Data Access Layer (DAL): Pass the shared file data
+  Data Access Layer (DAL)--)OpenFGA: Authorization check (user, can_share, file)
+  Data Access Layer (DAL)--)Auth0: Request userId from email
+  Data Access Layer (DAL)--)OpenFGA: Create new tuple (userId, viewer, file)
+```
+
+### Get a folder
+
+```mermaid
+sequenceDiagram;
+  participant Next.js Application
+  participant Next.js Server Actions
+  participant Data Access Layer (DAL)
+  participant Vercel KV
+  participant Uploads folder
+  participant Auth0
+  participant OpenFGA
+  Next.js Application->>Next.js Server Actions: Request folder action
+  Next.js Server Actions->>Data Access Layer (DAL): Pass get folder request
+  Data Access Layer (DAL)--)Auth0: Authentication Check
+  Data Access Layer (DAL)--)OpenFGA: Authorization Check for folder (user, can_view, folder)
+  Data Access Layer (DAL)->>Vercel KV: Look for file in the store
+  Vercel KV->>Data Access Layer (DAL): Return file location
+  Data Access Layer (DAL)->>Next.js Server Actions: Return file location
+  Next.js Server Actions->>Next.js Application: Return file location
+  Next.js Application->>Uploads folder: Request file
+  Uploads folder->>Next.js Application: Display file
+```
+
+### Get fodlers for folder
+
+```mermaid
+sequenceDiagram;
+  participant Next.js Application
+  participant Next.js Server Actions
+  participant Data Access Layer (DAL)
+  participant Vercel KV
+  participant Uploads folder
+  participant Auth0
+  participant OpenFGA
+  Next.js Application->>Next.js Server Actions: Request folders action
+  Next.js Server Actions->>Data Access Layer (DAL): Pass get folders request
+  Data Access Layer (DAL)--)Auth0: Authentication Check
+  Data Access Layer (DAL)--)OpenFGA: Authorization Check for parent folder (user, can_view, parent folder)
+  Data Access Layer (DAL)->>Vercel KV: Look for folders in the store
+  Data Access Layer (DAL)--)OpenFGA: Check Authorization for each folders (user, can_view, folder)
+  Vercel KV->>Data Access Layer (DAL): Return folders
+  Data Access Layer (DAL)->>Next.js Server Actions: Return folders
+  Next.js Server Actions->>Next.js Application: Return folders
+```
+
+#### Create a folder
+
+```mermaid
+sequenceDiagram;
+  participant Next.js Application
+  participant Next.js Server Actions
+  participant Data Access Layer (DAL)
+  participant Vercel KV
+  participant Uploads folder
+  participant Auth0
+  participant OpenFGA
+  Next.js Application->>Next.js Server Actions: Create folder action
+  Next.js Server Actions->>Data Access Layer (DAL): Pass the new folder name and  parent
+  Data Access Layer (DAL)--)Auth0: Authentication Check
+  Data Access Layer (DAL)--)OpenFGA: Authorization Check for parent folder (user, can_create_folder, parent folder)
+  Data Access Layer (DAL)->>Vercel KV: Store folder data
+  Data Access Layer (DAL)--)OpenFGA: Create new tuple (user, owner, folder)
+  Data Access Layer (DAL)--)OpenFGA: Create new tuple (parent folder, parent, folder)
+  Data Access Layer (DAL)->>Next.js Server Actions: Return folder name
+  Next.js Server Actions->>Next.js Application: Return folder name
+```
+
+#### Share a folder
+
+```mermaid
+sequenceDiagram;
+  participant Next.js Application
+  participant Next.js Server Actions
+  participant Data Access Layer (DAL)
+  participant Vercel KV
+  participant Uploads folder
+  participant Auth0
+  participant OpenFGA
+  Next.js Application->>Next.js Server Actions: Share folder action
+  Next.js Server Actions->>Data Access Layer (DAL): Pass the shared folder data
+  Data Access Layer (DAL)--)OpenFGA: Authorization check (user, can_share, folder)
+  Data Access Layer (DAL)--)Auth0: Request userId from email
+  Data Access Layer (DAL)--)OpenFGA: Create new tuple (userId, viewer, folder)
 ```

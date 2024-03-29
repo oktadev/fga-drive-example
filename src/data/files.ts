@@ -20,6 +20,11 @@ import {
 } from "@/store/files";
 import { isAuthenticated } from "@/app/authentication";
 import { auth0ManagementClient } from "@/helpers/auth0-management";
+import { extname } from "path";
+import { getFileHash } from "@/helpers/hash";
+import { Hash } from "crypto";
+import { writeFile } from "fs/promises";
+import { v4 as uuidv4 } from "uuid";
 
 export async function getFileDTO(
   fileId: string,
@@ -132,9 +137,8 @@ export async function getAllSharedFilesDTO(): Promise<{
 }
 
 export async function uploadFileDTO(
-  fileId: string,
   parent: string,
-  storedFile: StoredFile,
+  file: File,
 ): Promise<{ files?: Array<StoredFile>; error?: unknown }> {
   try {
     if (await !isAuthenticated()) {
@@ -146,7 +150,24 @@ export async function uploadFileDTO(
       return { error: "Forbidden" };
     }
 
-    const files = await createFileInStore(fileId, parent, storedFile);
+    const fileBytes: ArrayBuffer = await file.arrayBuffer();
+    const fileBuffer: Buffer = Buffer.from(fileBytes);
+    const fileId: string = uuidv4();
+    const fileHash: Hash = getFileHash(fileBuffer);
+    const fileExtension: string = extname(file.name);
+    const filePath: string = `${process.cwd()}/upload/${fileHash.toString()}${fileExtension}`;
+    const fileSize: number = Buffer.byteLength(fileBuffer);
+    const uploadedFile: StoredFile = {
+      name: file.name,
+      lastModified: file.lastModified,
+      fileName: `${fileHash}${fileExtension}`,
+      size: fileSize,
+    };
+
+    // Save the file to the /upload folder, this should probably be saved in a static file store like Vercel Blob Storage of AWS S3 in the real world
+    await writeFile(filePath, fileBuffer);
+
+    const files = await createFileInStore(fileId, parent, uploadedFile);
 
     if (files) {
       // Write OpenFGA tupples for the new file
