@@ -187,7 +187,7 @@ KV_REST_API_TOKEN="****"
 KV_REST_API_READ_ONLY_TOKEN="****"
 ```
 
-## '5' Architecture
+## `5` Architecture
 
 ### Get a file
 
@@ -298,7 +298,7 @@ sequenceDiagram;
   Uploads folder->>Next.js Application: Display file
 ```
 
-### Get fodlers for folder
+### Get folders for folder
 
 ```mermaid
 sequenceDiagram;
