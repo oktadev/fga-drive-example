@@ -220,7 +220,6 @@ sequenceDiagram;
   participant Next.js Server Actions
   participant Data Access Layer (DAL)
   participant Vercel KV
-  participant Uploads folder
   participant Auth0
   participant OpenFGA
   Next.js Page->>Next.js Server Actions: Request files action
@@ -264,12 +263,11 @@ sequenceDiagram;
   participant Next.js Page
   participant Next.js Server Actions
   participant Data Access Layer (DAL)
-  participant Vercel KV
-  participant Uploads folder
   participant Auth0
   participant OpenFGA
   Next.js Page->>Next.js Server Actions: Share file action
   Next.js Server Actions->>Data Access Layer (DAL): Pass the shared file data
+  Data Access Layer (DAL)--)Auth0: Authentication Check
   Data Access Layer (DAL)--)OpenFGA: Authorization check (user, can_share, file)
   Data Access Layer (DAL)--)Auth0: Request userId from email
   Data Access Layer (DAL)--)OpenFGA: Create new tuple (userId, viewer, file)
@@ -283,7 +281,6 @@ sequenceDiagram;
   participant Next.js Server Actions
   participant Data Access Layer (DAL)
   participant Vercel KV
-  participant Uploads folder
   participant Auth0
   participant OpenFGA
   Next.js Page->>Next.js Server Actions: Request folder action
@@ -304,7 +301,6 @@ sequenceDiagram;
   participant Next.js Server Actions
   participant Data Access Layer (DAL)
   participant Vercel KV
-  participant Uploads folder
   participant Auth0
   participant OpenFGA
   Next.js Page->>Next.js Server Actions: Request folders action
@@ -326,7 +322,6 @@ sequenceDiagram;
   participant Next.js Server Actions
   participant Data Access Layer (DAL)
   participant Vercel KV
-  participant Uploads folder
   participant Auth0
   participant OpenFGA
   Next.js Page->>Next.js Server Actions: Create folder action
@@ -347,12 +342,11 @@ sequenceDiagram;
   participant Next.js Page
   participant Next.js Server Actions
   participant Data Access Layer (DAL)
-  participant Vercel KV
-  participant Uploads folder
   participant Auth0
   participant OpenFGA
   Next.js Page->>Next.js Server Actions: Share folder action
   Next.js Server Actions->>Data Access Layer (DAL): Pass the shared folder data
+  Data Access Layer (DAL)--)Auth0: Authentication Check
   Data Access Layer (DAL)--)OpenFGA: Authorization check (user, can_share, folder)
   Data Access Layer (DAL)--)Auth0: Request userId from email
   Data Access Layer (DAL)--)OpenFGA: Create new tuple (userId, viewer, folder)
