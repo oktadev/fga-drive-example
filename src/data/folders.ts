@@ -1,13 +1,6 @@
 import "server-only";
 import { isAuthenticated } from "@/app/authentication";
-import {
-  authorizeNewFolder,
-  authorizeNewSharedFolder,
-  canCreateFolderForParent,
-  canShareFolder,
-  canViewFolder,
-  filterFoldersForUser,
-} from "@/app/authorization";
+import { fgaClient, filterFoldersForUser } from "@/app/authorization";
 import { getUserId } from "@/data/user";
 import {
   Folder,
@@ -26,7 +19,13 @@ export async function getFolderDTO(
     }
 
     const userId = await getUserId();
-    if (await !canViewFolder(userId, folderId)) {
+    const { allowed } = await fgaClient.check({
+      user: `user:${userId}`,
+      relation: "can_view",
+      object: `folder:${folderId}`,
+    });
+
+    if (!allowed) {
       return { error: "Forbidden" };
     }
 
@@ -58,7 +57,13 @@ export async function getAllFoldersForParentDTO(
     }
 
     const userId = await getUserId();
-    if (await !canViewFolder(userId, parent)) {
+    const { allowed } = await fgaClient.check({
+      user: `user:${userId}`,
+      relation: "can_view",
+      object: `folder:${parent}`,
+    });
+
+    if (!allowed) {
       return { error: "Forbidden" };
     }
 
@@ -88,7 +93,13 @@ export async function createFolderDTO(
     }
 
     const userId = await getUserId();
-    if (await !canCreateFolderForParent(userId, parent)) {
+    const { allowed } = await fgaClient.check({
+      user: `user:${userId}`,
+      relation: "can_create_folder",
+      object: `folder:${parent}`,
+    });
+
+    if (!allowed) {
       return { error: "Forbidden" };
     }
 
@@ -96,7 +107,18 @@ export async function createFolderDTO(
 
     if (folder) {
       // Write OpenFGA tupples for the new folder
-      await authorizeNewFolder(folderId, userId, parent);
+      await fgaClient.writeTuples([
+        {
+          user: `user:${userId}`,
+          relation: "owner",
+          object: `folder:${folderId}`,
+        },
+        {
+          user: `folder:${parent}`,
+          relation: "parent",
+          object: `folder:${folderId}`,
+        },
+      ]);
 
       return { folder };
     }
@@ -117,7 +139,13 @@ export async function shareFolderDTO(
     }
 
     const userId = await getUserId();
-    if (await !canShareFolder(userId, folderId)) {
+    const { allowed } = await fgaClient.check({
+      user: `user:${userId}`,
+      relation: "can_share",
+      object: `folder:${folderId}`,
+    });
+
+    if (!allowed) {
       return { error: "Forbidden" };
     }
 
@@ -134,7 +162,14 @@ export async function shareFolderDTO(
       }
 
       // Write a new OpenFGA tupple to share the folder
-      await authorizeNewSharedFolder(folderId, data[0].user_id);
+      await fgaClient.writeTuples([
+        {
+          user: `user:${data[0].user_id}`,
+          relation: "viewer",
+          object: `folder:${folderId}`,
+        },
+      ]);
+
       return { folder: folderId };
     } catch (error) {
       return { error };

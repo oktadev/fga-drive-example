@@ -1,11 +1,7 @@
 import "server-only";
 import {
-  authorizeNewFile,
   authorizeNewSharedFile,
-  canShareFile,
-  canUploadFileForParent,
-  canViewFile,
-  canViewFilesForParent,
+  fgaClient,
   filterFilesForUser,
   listSharedFiles,
 } from "@/app/authorization";
@@ -35,7 +31,13 @@ export async function getFileDTO(
     }
 
     const userId = await getUserId();
-    if (await !canViewFile(userId, fileId)) {
+    const { allowed } = await fgaClient.check({
+      user: `user:${userId}`,
+      relation: "can_view",
+      object: `file:${fileId}`,
+    });
+
+    if (!allowed) {
       return { error: "Forbidden" };
     }
 
@@ -68,7 +70,13 @@ export async function getAllFilesForParentDTO(parent: string): Promise<{
     }
 
     const userId = await getUserId();
-    if (await !canViewFilesForParent(userId, parent)) {
+    const { allowed } = await fgaClient.check({
+      user: `user:${userId}`,
+      relation: "can_view",
+      object: `folder:${parent}`,
+    });
+
+    if (!allowed) {
       return { error: "Forbidden" };
     }
 
@@ -146,7 +154,13 @@ export async function uploadFileDTO(
     }
 
     const userId = await getUserId();
-    if (await !canUploadFileForParent(userId, parent)) {
+    const { allowed } = await fgaClient.check({
+      user: `user:${userId}`,
+      relation: "can_create_file",
+      object: `folder:${parent}`,
+    });
+
+    if (!allowed) {
       return { error: "Forbidden" };
     }
 
@@ -171,7 +185,18 @@ export async function uploadFileDTO(
 
     if (files) {
       // Write OpenFGA tupples for the new file
-      await authorizeNewFile(fileId, userId, parent);
+      await fgaClient.writeTuples([
+        {
+          user: `user:${userId}`,
+          relation: "owner",
+          object: `file:${fileId}`,
+        },
+        {
+          user: `folder:${parent}`,
+          relation: "parent",
+          object: `file:${fileId}`,
+        },
+      ]);
 
       return { files };
     }
@@ -192,7 +217,13 @@ export async function shareFileDTO(
     }
 
     const userId = await getUserId();
-    if (await !canShareFile(userId, file)) {
+    const { allowed } = await fgaClient.check({
+      user: `user:${userId}`,
+      relation: "can_share",
+      object: `file:${file}`,
+    });
+
+    if (!allowed) {
       return { error: "Forbidden" };
     }
 
@@ -209,7 +240,14 @@ export async function shareFileDTO(
       }
 
       // Write a new OpenFGA tupple to share the file
-      await authorizeNewSharedFile(file, data[0].user_id);
+      await fgaClient.writeTuples([
+        {
+          user: `user:${data[0].user_id}`,
+          relation: "viewer",
+          object: `file:${file}`,
+        },
+      ]);
+
       return { file };
     } catch (error) {
       return { error };
