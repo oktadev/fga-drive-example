@@ -289,7 +289,7 @@ sequenceDiagram;
   Data Access Layer (DAL)--)OpenFGA: Authorization Check for folder (user, can_view, folder)
   Data Access Layer (DAL)->>Vercel KV: Look for fodler metadata in the store
   Vercel KV->>Data Access Layer (DAL): Return folder metadata
-  Data Access Layer (DAL)->>Next.js Server Actions: Return folder 
+  Data Access Layer (DAL)->>Next.js Server Actions: Return folder
   Next.js Server Actions->>Next.js Page: Return folder metadata
 ```
 

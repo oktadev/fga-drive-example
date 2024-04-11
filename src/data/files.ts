@@ -1,10 +1,5 @@
 import "server-only";
-import {
-  authorizeNewSharedFile,
-  fgaClient,
-  filterFilesForUser,
-  listSharedFiles,
-} from "@/app/authorization";
+import { fgaClient, filterFilesForUser } from "@/app/authorization";
 import { getUserId } from "@/data/user";
 import { stripObjectName } from "@/helpers/strip-object-name";
 import {
@@ -117,8 +112,14 @@ export async function getAllSharedFilesDTO(): Promise<{
     }
 
     const userId = await getUserId();
+
     // List all files that are shared with the current user in OpenFGA
-    const sharedFiles = await listSharedFiles(userId);
+    const sharedFiles = await fgaClient.listObjects({
+      user: `user:${userId}`,
+      relation: "is_shared",
+      type: "file",
+    });
+
     // Get all shared files from our our Vercel Key/Value Store
     const files = await getFilesSubsetFromStore(
       sharedFiles?.objects?.map((file) => stripObjectName(file)),

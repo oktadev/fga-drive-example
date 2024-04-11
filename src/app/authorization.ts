@@ -86,11 +86,3 @@ export async function filterFoldersForUser(
     )
     .filter(Boolean) as Array<Folder>;
 }
-
-export async function listSharedFiles(user: string) {
-  return fgaClient.listObjects({
-    user: `user:${user}`,
-    relation: "is_shared",
-    type: "file",
-  });
-}
