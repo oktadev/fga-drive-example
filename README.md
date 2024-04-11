@@ -187,43 +187,42 @@ KV_REST_API_TOKEN="****"
 KV_REST_API_READ_ONLY_TOKEN="****"
 ```
 
-## '5' Architecture
+## `5` Architecture
 
 ### Get a file
 
 ```mermaid
 sequenceDiagram;
-  participant Next.js Application
+  participant Next.js Page
   participant Next.js Server Actions
   participant Data Access Layer (DAL)
   participant Vercel KV
   participant Uploads folder
   participant Auth0
   participant OpenFGA
-  Next.js Application->>Next.js Server Actions: Request file action
+  Next.js Page->>Next.js Server Actions: Request file action
   Next.js Server Actions->>Data Access Layer (DAL): Pass get file request
   Data Access Layer (DAL)--)Auth0: Authentication Check
   Data Access Layer (DAL)--)OpenFGA: Authorization Check for file (user, can_view, file)
   Data Access Layer (DAL)->>Vercel KV: Look for file in the store
   Vercel KV->>Data Access Layer (DAL): Return file location
   Data Access Layer (DAL)->>Next.js Server Actions: Return file location
-  Next.js Server Actions->>Next.js Application: Return file location
-  Next.js Application->>Uploads folder: Request file
-  Uploads folder->>Next.js Application: Display file
+  Next.js Server Actions->>Next.js Page: Return file location
+  Next.js Page->>Uploads folder: Request file
+  Uploads folder->>Next.js Page: Display file
 ```
 
 ### Get files for folder
 
 ```mermaid
 sequenceDiagram;
-  participant Next.js Application
+  participant Next.js Page
   participant Next.js Server Actions
   participant Data Access Layer (DAL)
   participant Vercel KV
-  participant Uploads folder
   participant Auth0
   participant OpenFGA
-  Next.js Application->>Next.js Server Actions: Request files action
+  Next.js Page->>Next.js Server Actions: Request files action
   Next.js Server Actions->>Data Access Layer (DAL): Pass get files request
   Data Access Layer (DAL)--)Auth0: Authentication Check
   Data Access Layer (DAL)--)OpenFGA: Authorization Check for parent folder (user,can_view, folder)
@@ -231,21 +230,21 @@ sequenceDiagram;
   Data Access Layer (DAL)--)OpenFGA: Check Authorization for each file (user, can_view, file)
   Vercel KV->>Data Access Layer (DAL): Return files
   Data Access Layer (DAL)->>Next.js Server Actions: Return files
-  Next.js Server Actions->>Next.js Application: Return files
+  Next.js Server Actions->>Next.js Page: Return files
 ```
 
 ### Upload a file
 
 ```mermaid
 sequenceDiagram;
-  participant Next.js Application
+  participant Next.js Page
   participant Next.js Server Actions
   participant Data Access Layer (DAL)
   participant Vercel KV
   participant Uploads folder
   participant Auth0
   participant OpenFGA
-  Next.js Application->>Next.js Server Actions: Upload file action
+  Next.js Page->>Next.js Server Actions: Upload file action
   Next.js Server Actions->>Data Access Layer (DAL): Pass the uploaded file
   Data Access Layer (DAL)--)Auth0: Authentication Check
   Data Access Layer (DAL)--)OpenFGA: Authorization Check for parent folder (user, can_create_file, folder)
@@ -254,22 +253,21 @@ sequenceDiagram;
   Data Access Layer (DAL)--)OpenFGA: Create new tuple (user, owner, file)
   Data Access Layer (DAL)--)OpenFGA: Create new tuple (parent folder, parent, file)
   Data Access Layer (DAL)->>Next.js Server Actions: Return files
-  Next.js Server Actions->>Next.js Application: Return files
+  Next.js Server Actions->>Next.js Page: Return files
 ```
 
 ### Share a file
 
 ```mermaid
 sequenceDiagram;
-  participant Next.js Application
+  participant Next.js Page
   participant Next.js Server Actions
   participant Data Access Layer (DAL)
-  participant Vercel KV
-  participant Uploads folder
   participant Auth0
   participant OpenFGA
-  Next.js Application->>Next.js Server Actions: Share file action
+  Next.js Page->>Next.js Server Actions: Share file action
   Next.js Server Actions->>Data Access Layer (DAL): Pass the shared file data
+  Data Access Layer (DAL)--)Auth0: Authentication Check
   Data Access Layer (DAL)--)OpenFGA: Authorization check (user, can_share, file)
   Data Access Layer (DAL)--)Auth0: Request userId from email
   Data Access Layer (DAL)--)OpenFGA: Create new tuple (userId, viewer, file)
@@ -279,37 +277,33 @@ sequenceDiagram;
 
 ```mermaid
 sequenceDiagram;
-  participant Next.js Application
+  participant Next.js Page
   participant Next.js Server Actions
   participant Data Access Layer (DAL)
   participant Vercel KV
-  participant Uploads folder
   participant Auth0
   participant OpenFGA
-  Next.js Application->>Next.js Server Actions: Request folder action
+  Next.js Page->>Next.js Server Actions: Request folder action
   Next.js Server Actions->>Data Access Layer (DAL): Pass get folder request
   Data Access Layer (DAL)--)Auth0: Authentication Check
   Data Access Layer (DAL)--)OpenFGA: Authorization Check for folder (user, can_view, folder)
-  Data Access Layer (DAL)->>Vercel KV: Look for file in the store
-  Vercel KV->>Data Access Layer (DAL): Return file location
-  Data Access Layer (DAL)->>Next.js Server Actions: Return file location
-  Next.js Server Actions->>Next.js Application: Return file location
-  Next.js Application->>Uploads folder: Request file
-  Uploads folder->>Next.js Application: Display file
+  Data Access Layer (DAL)->>Vercel KV: Look for fodler metadata in the store
+  Vercel KV->>Data Access Layer (DAL): Return folder metadata
+  Data Access Layer (DAL)->>Next.js Server Actions: Return folder 
+  Next.js Server Actions->>Next.js Page: Return folder metadata
 ```
 
-### Get fodlers for folder
+### Get folders for folder
 
 ```mermaid
 sequenceDiagram;
-  participant Next.js Application
+  participant Next.js Page
   participant Next.js Server Actions
   participant Data Access Layer (DAL)
   participant Vercel KV
-  participant Uploads folder
   participant Auth0
   participant OpenFGA
-  Next.js Application->>Next.js Server Actions: Request folders action
+  Next.js Page->>Next.js Server Actions: Request folders action
   Next.js Server Actions->>Data Access Layer (DAL): Pass get folders request
   Data Access Layer (DAL)--)Auth0: Authentication Check
   Data Access Layer (DAL)--)OpenFGA: Authorization Check for parent folder (user, can_view, parent folder)
@@ -317,21 +311,20 @@ sequenceDiagram;
   Data Access Layer (DAL)--)OpenFGA: Check Authorization for each folders (user, can_view, folder)
   Vercel KV->>Data Access Layer (DAL): Return folders
   Data Access Layer (DAL)->>Next.js Server Actions: Return folders
-  Next.js Server Actions->>Next.js Application: Return folders
+  Next.js Server Actions->>Next.js Page: Return folders
 ```
 
 ### Create a folder
 
 ```mermaid
 sequenceDiagram;
-  participant Next.js Application
+  participant Next.js Page
   participant Next.js Server Actions
   participant Data Access Layer (DAL)
   participant Vercel KV
-  participant Uploads folder
   participant Auth0
   participant OpenFGA
-  Next.js Application->>Next.js Server Actions: Create folder action
+  Next.js Page->>Next.js Server Actions: Create folder action
   Next.js Server Actions->>Data Access Layer (DAL): Pass the new folder name and  parent
   Data Access Layer (DAL)--)Auth0: Authentication Check
   Data Access Layer (DAL)--)OpenFGA: Authorization Check for parent folder (user, can_create_folder, parent folder)
@@ -339,22 +332,21 @@ sequenceDiagram;
   Data Access Layer (DAL)--)OpenFGA: Create new tuple (user, owner, folder)
   Data Access Layer (DAL)--)OpenFGA: Create new tuple (parent folder, parent, folder)
   Data Access Layer (DAL)->>Next.js Server Actions: Return folder name
-  Next.js Server Actions->>Next.js Application: Return folder name
+  Next.js Server Actions->>Next.js Page: Return folder name
 ```
 
 ### Share a folder
 
 ```mermaid
 sequenceDiagram;
-  participant Next.js Application
+  participant Next.js Page
   participant Next.js Server Actions
   participant Data Access Layer (DAL)
-  participant Vercel KV
-  participant Uploads folder
   participant Auth0
   participant OpenFGA
-  Next.js Application->>Next.js Server Actions: Share folder action
+  Next.js Page->>Next.js Server Actions: Share folder action
   Next.js Server Actions->>Data Access Layer (DAL): Pass the shared folder data
+  Data Access Layer (DAL)--)Auth0: Authentication Check
   Data Access Layer (DAL)--)OpenFGA: Authorization check (user, can_share, folder)
   Data Access Layer (DAL)--)Auth0: Request userId from email
   Data Access Layer (DAL)--)OpenFGA: Create new tuple (userId, viewer, folder)
