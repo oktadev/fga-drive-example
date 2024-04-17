@@ -4,8 +4,8 @@ import { getSession } from "@auth0/nextjs-auth0";
 import { readFile } from "fs/promises";
 import mime from "mime";
 import { NextRequest, NextResponse } from "next/server";
-import { canViewFile } from "@/app/authorization";
 import { getFile } from "@/app/actions";
+import { fgaClient } from "@/app/authorization";
 
 export const dynamic = "force-dynamic";
 export const GET = async function (
@@ -18,7 +18,13 @@ export const GET = async function (
     const fileId = params?.file;
 
     // If we're allowed to see the file, return it
-    if (await canViewFile(user?.sub, fileId)) {
+    const { allowed } = await fgaClient.check({
+      user: `user:${user?.sub}`,
+      relation: 'can_view',
+      object: `file:${fileId}`
+    })
+    
+    if (allowed) {
       const { file, error } = await getFile(params?.file);
 
       if (file) {
