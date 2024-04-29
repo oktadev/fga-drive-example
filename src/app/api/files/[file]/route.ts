@@ -1,5 +1,4 @@
 import "server-only";
-import { getFileFromStore } from "@/store/files";
 import { getSession } from "@auth0/nextjs-auth0";
 import { readFile } from "fs/promises";
 import mime from "mime";
@@ -23,7 +22,7 @@ export const GET = async function (
       relation: 'can_view',
       object: `file:${fileId}`
     })
-    
+
     if (allowed) {
       const { file, error } = await getFile(params?.file);
 
