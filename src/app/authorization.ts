@@ -1,8 +1,8 @@
 import "server-only";
 import { CredentialsMethod, OpenFgaClient } from "@openfga/sdk";
 import { stripObjectName } from "@/helpers/strip-object-name";
-import { StoredFile } from "@/store/files";
-import { Folder } from "@/store/folders";
+import { StoredFile } from "@/db/files";
+import { Folder } from "@/db/folders";
 
 export const fgaClient = new OpenFgaClient({
   apiUrl: process.env.FGA_API_URL,

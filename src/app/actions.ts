@@ -2,8 +2,8 @@
 import "server-only";
 import { v4 as uuidv4 } from "uuid";
 import { revalidatePath } from "next/cache";
-import { StoredFile } from "@/store/files";
-import { Folder } from "@/store/folders";
+import { StoredFile } from "@/db/files";
+import { Folder } from "@/db/folders";
 import {
   ReadableStoredFile,
   getAllFilesForParentDTO,

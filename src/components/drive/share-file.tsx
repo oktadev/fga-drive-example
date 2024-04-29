@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { ShareIcon } from "@/components/icons";
 import { useState } from "react";
-import { StoredFile } from "@/store/files";
+import { StoredFile } from "@/db/files";
 import { useToast } from "@/components/ui/use-toast";
 import { shareFile } from "@/app/actions";
 

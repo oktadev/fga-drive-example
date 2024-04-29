@@ -8,7 +8,7 @@ import useSWR from "swr";
 import { getSharedFiles } from "@/requests/files";
 import { DriveEmpty } from "@/components/drive/empty";
 import { DriveSkeleton } from "@/components/drive/skeleton";
-import { StoredFile } from "@/store/files";
+import { StoredFile } from "@/db/files";
 
 export default function Shared() {
   const {

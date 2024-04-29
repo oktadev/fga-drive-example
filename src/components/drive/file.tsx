@@ -25,7 +25,7 @@ export function DriveFile({ file }: { file: ReadableStoredFile }) {
             <DialogHeader>
               <DialogTitle>{file?.name}</DialogTitle>
               <DialogDescription>
-                Last updated on <strong>{file?.lastModified}</strong>.
+                Last updated on <strong>{file?.lastmodified}</strong>.
               </DialogDescription>
             </DialogHeader>
             <div className="relative min-h-full h-[calc(80vh-8rem)] w-[calc(80vw-4rem)]">
@@ -45,7 +45,7 @@ export function DriveFile({ file }: { file: ReadableStoredFile }) {
           </DialogContent>
         </Dialog>
       </TableCell>
-      <TableCell>{file?.lastModified}</TableCell>
+      <TableCell>{file?.lastmodified}</TableCell>
       <TableCell>{formatBytes(file?.size)}</TableCell>
       <TableCell>
         <ShareFile file={file} />

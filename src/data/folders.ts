@@ -4,10 +4,10 @@ import { fgaClient, filterFoldersForUser } from "@/app/authorization";
 import { getUserId } from "@/data/user";
 import {
   Folder,
-  createFolderInStore,
-  getFolderFromStore,
-  getFoldersFromStore,
-} from "@/store/folders";
+  createFolderInDB,
+  getFolderFromDB,
+  getFoldersFromDB,
+} from "@/db/folders";
 import { auth0ManagementClient } from "@/helpers/auth0-management";
 
 export async function getFolderDTO(
@@ -30,7 +30,7 @@ export async function getFolderDTO(
     }
 
     // Get the folder from our Vercel Key/Value Store
-    const folder = await getFolderFromStore(folderId);
+    const folder = await getFolderFromDB(folderId);
 
     if (folder) {
       return {
@@ -68,7 +68,7 @@ export async function getAllFoldersForParentDTO(
     }
 
     // Get all folders for the parent from our Vercel Key/Value Store
-    const folders = await getFoldersFromStore(parent);
+    const folders = await getFoldersFromDB(parent);
 
     if (folders) {
       // Filter the folders for the ones we're allowed to see according to OpenFGA and return these
@@ -103,7 +103,7 @@ export async function createFolderDTO(
       return { error: "Forbidden" };
     }
 
-    const folder = await createFolderInStore(folderId, parent, newFolder);
+    const folder = await createFolderInDB(folderId, parent, newFolder);
 
     if (folder) {
       // Write OpenFGA tupples for the new folder

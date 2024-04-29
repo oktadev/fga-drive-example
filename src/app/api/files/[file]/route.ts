@@ -19,15 +19,15 @@ export const GET = async function (
     // If we're allowed to see the file, return it
     const { allowed } = await fgaClient.check({
       user: `user:${user?.sub}`,
-      relation: 'can_view',
-      object: `file:${fileId}`
-    })
+      relation: "can_view",
+      object: `file:${fileId}`,
+    });
 
     if (allowed) {
       const { file, error } = await getFile(params?.file);
 
       if (file) {
-        const filePath = `${process.cwd()}/upload/${file?.fileName}`;
+        const filePath = `${process.cwd()}/upload/${file?.filename}`;
         const mimeType = mime.getType(filePath);
         const data = await readFile(filePath);
         return new NextResponse(data, {

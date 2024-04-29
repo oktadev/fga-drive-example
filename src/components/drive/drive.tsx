@@ -8,7 +8,7 @@ import { DriveEmpty } from "@/components/drive/empty";
 import { DriveTable } from "@/components/drive/table";
 import { DriveFolder } from "@/components/drive/folder";
 import { DriveFile } from "@/components/drive/file";
-import { Folder } from "@/store/folders";
+import { Folder } from "@/db/folders";
 import { ReadableStoredFile } from "@/data/files";
 import { uploadFile } from "@/app/actions";
 

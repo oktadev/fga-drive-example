@@ -2,13 +2,6 @@ import "server-only";
 import { fgaClient, filterFilesForUser } from "@/app/authorization";
 import { getUserId } from "@/data/user";
 import { stripObjectName } from "@/helpers/strip-object-name";
-import {
-  StoredFile,
-  createFileInStore,
-  getFileFromStore,
-  getFilesFromStore,
-  getFilesSubsetFromStore,
-} from "@/store/files";
 import { isAuthenticated } from "@/app/authentication";
 import { auth0ManagementClient } from "@/helpers/auth0-management";
 import { extname } from "path";
@@ -16,6 +9,13 @@ import { getFileHash } from "@/helpers/hash";
 import { Hash } from "crypto";
 import { writeFile } from "fs/promises";
 import { v4 as uuidv4 } from "uuid";
+import {
+  StoredFile,
+  createFileInDB,
+  getFileFromDB,
+  getFilesFromDB,
+  getFilesSubsetFromDB,
+} from "@/db/files";
 
 export async function getFileDTO(
   fileId: string,
@@ -36,7 +36,7 @@ export async function getFileDTO(
       return { error: "Forbidden" };
     }
 
-    const file = await getFileFromStore(fileId);
+    const file = await getFileFromDB(fileId);
 
     if (file) {
       return { file };
@@ -50,10 +50,10 @@ export async function getFileDTO(
 
 export interface ReadableStoredFile {
   name: string;
-  fileName: string;
+  filename: string;
   size: number;
   id?: string;
-  lastModified: string;
+  lastmodified: string;
 }
 export async function getAllFilesForParentDTO(parent: string): Promise<{
   files?: Array<ReadableStoredFile>;
@@ -76,20 +76,20 @@ export async function getAllFilesForParentDTO(parent: string): Promise<{
     }
 
     // Get all saved files
-    const files = await getFilesFromStore(parent);
-
+    const files = await getFilesFromDB(parent);
+    console.log(files);
     if (files) {
       // Filter all files for the ones we're allowed to see according to OpenFGA
       const filteredFiles = await filterFilesForUser(files, userId);
-
+      console.log(filteredFiles);
       // Convert the lase modified timestamp to a human readable date and time and return the files
       return {
         files: filteredFiles.map((file) => ({
           ...file,
-          lastModified: `${new Date(
-            Number(file?.lastModified),
+          lastmodified: `${new Date(
+            Number(file?.lastmodified),
           ).toLocaleTimeString()} - ${new Date(
-            Number(file?.lastModified),
+            Number(file?.lastmodified),
           ).toLocaleDateString()}`,
         })),
       };
@@ -121,7 +121,7 @@ export async function getAllSharedFilesDTO(): Promise<{
     });
 
     // Get all shared files from our our Vercel Key/Value Store
-    const files = await getFilesSubsetFromStore(
+    const files = await getFilesSubsetFromDB(
       sharedFiles?.objects?.map((file) => stripObjectName(file)),
     );
 
@@ -129,10 +129,10 @@ export async function getAllSharedFilesDTO(): Promise<{
       return {
         files: files?.map((file: StoredFile) => ({
           ...file,
-          lastModified: `${new Date(
-            Number(file?.lastModified),
+          lastmodified: `${new Date(
+            Number(file?.lastmodified),
           ).toLocaleTimeString()} - ${new Date(
-            Number(file?.lastModified),
+            Number(file?.lastmodified),
           ).toLocaleDateString()}`,
         })),
       };
@@ -174,15 +174,16 @@ export async function uploadFileDTO(
     const fileSize: number = Buffer.byteLength(fileBuffer);
     const uploadedFile: StoredFile = {
       name: file.name,
-      lastModified: file.lastModified,
-      fileName: `${fileHash}${fileExtension}`,
+      lastmodified: file.lastModified,
+      filename: `${fileHash}${fileExtension}`,
       size: fileSize,
     };
 
     // Save the file to the /upload folder, this should probably be saved in a static file store like Vercel Blob Storage of AWS S3 in the real world
     await writeFile(filePath, fileBuffer);
 
-    const files = await createFileInStore(fileId, parent, uploadedFile);
+    // const files = await createFileInStore(fileId, parent, uploadedFile);
+    const files = await createFileInDB(fileId, parent, uploadedFile);
 
     if (files) {
       // Write OpenFGA tupples for the new file

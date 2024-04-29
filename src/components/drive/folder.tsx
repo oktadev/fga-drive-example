@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { FolderIcon } from "@/components/icons";
-import { Folder } from "@/store/folders";
+import { Folder } from "@/db/folders";
 import Link from "next/link";
 import { ShareFolder } from "@/components/drive/share-folder";
 export function DriveFolder({ folder }: { folder: Folder | undefined }) {
