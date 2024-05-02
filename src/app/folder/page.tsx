@@ -25,7 +25,7 @@ export default async function Page() {
           )}
 
           <DriveHeader parent={userId} />
-          <Drive files={files} folders={folders} />
+          <Drive files={files} folders={folders} folder={{ id: userId }} />
         </main>
       </div>
     </div>

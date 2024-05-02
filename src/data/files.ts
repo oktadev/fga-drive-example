@@ -77,11 +77,11 @@ export async function getAllFilesForParentDTO(parent: string): Promise<{
 
     // Get all saved files
     const files = await getFilesFromDB(parent);
-    console.log(files);
+
     if (files) {
       // Filter all files for the ones we're allowed to see according to OpenFGA
       const filteredFiles = await filterFilesForUser(files, userId);
-      console.log(filteredFiles);
+
       // Convert the lase modified timestamp to a human readable date and time and return the files
       return {
         files: filteredFiles.map((file) => ({
