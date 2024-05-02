@@ -6,7 +6,7 @@ A user can log in, add files (pictures only), and create folders. Uploaded files
 
 This demo uses both Auth0 ([create a free account here](https://auth0.com)), and either [OpenFGA](https://openfga.dev) or its hosted and managed version [Okta FGA](https://fga.dev).
 
-The data is stored in a [Vercel KV store](https://vercel.com/docs/storage/vercel-kv).
+The data is stored in Postgres database.
 
 ![A preview of the demo application showing a Google Drive-style interface](./preview.png)
 
@@ -175,19 +175,23 @@ The application does the following OpenFGA / Okta FGA checks:
 - Deleting a folder:
   - TBD
 
-## 4. Configure Vercel KV
+## 4. Configure Posgres
 
-Go to the [Vercel dashboard](https://vercel.com/) and create a new KV store.
+Connect to your Postgres database, and create a `files` and `folders` table with the following SQL,
 
-You can copy the below `.env` variables from the **Getting started** page of your store:
+```
+CREATE TABLE files(id UUID PRIMARY KEY, name TEXT NOT NULL, fileName TEXT NOT NULL, lastModified BIGINT NOT NULL, SIZE BIGINT NOT NULL, parent TEXT NOT NULL);
+```
 
-### Vercel KV environment
+```
+CREATE TABLE folders(id TEXT PRIMARY KEY, name TEXT NOT NULL, parent TEXT NOT NULL)
+```
+*`id` is not of type `UUID` cause for the root folder, it is the user id as a string returned by Auth0.*
+
+### Postgres environment
 
 ```bash
-KV_URL="redis://****.upstash.io:****"
-KV_REST_API_URL="https://****.upstash.io"
-KV_REST_API_TOKEN="****"
-KV_REST_API_READ_ONLY_TOKEN="****"
+PG_CONNECTION_STRING="postgresql://***..."
 ```
 
 ## 5. Architecture
@@ -199,7 +203,7 @@ sequenceDiagram;
   participant Next.js Page
   participant Next.js Server Actions
   participant Data Access Layer (DAL)
-  participant Vercel KV
+  participant Postgres
   participant Uploads folder
   participant Auth0
   participant OpenFGA
@@ -207,8 +211,8 @@ sequenceDiagram;
   Next.js Server Actions->>Data Access Layer (DAL): Pass get file request
   Data Access Layer (DAL)--)Auth0: Authentication Check
   Data Access Layer (DAL)--)OpenFGA: Authorization Check for file (user, can_view, file)
-  Data Access Layer (DAL)->>Vercel KV: Look for file in the store
-  Vercel KV->>Data Access Layer (DAL): Return file location
+  Data Access Layer (DAL)->>Postgres: Look for file in the database
+  Postgres->>Data Access Layer (DAL): Return file location
   Data Access Layer (DAL)->>Next.js Server Actions: Return file location
   Next.js Server Actions->>Next.js Page: Return file location
   Next.js Page->>Uploads folder: Request file
@@ -222,16 +226,16 @@ sequenceDiagram;
   participant Next.js Page
   participant Next.js Server Actions
   participant Data Access Layer (DAL)
-  participant Vercel KV
+  participant Postgres
   participant Auth0
   participant OpenFGA
   Next.js Page->>Next.js Server Actions: Request files action
   Next.js Server Actions->>Data Access Layer (DAL): Pass get files request
   Data Access Layer (DAL)--)Auth0: Authentication Check
   Data Access Layer (DAL)--)OpenFGA: Authorization Check for parent folder (user,can_view, folder)
-  Data Access Layer (DAL)->>Vercel KV: Look for files in the store
+  Data Access Layer (DAL)->>Postgres: Look for files in the database
   Data Access Layer (DAL)--)OpenFGA: Check Authorization for each file (user, can_view, file)
-  Vercel KV->>Data Access Layer (DAL): Return files
+  Postgres->>Data Access Layer (DAL): Return files
   Data Access Layer (DAL)->>Next.js Server Actions: Return files
   Next.js Server Actions->>Next.js Page: Return files
 ```
@@ -243,7 +247,7 @@ sequenceDiagram;
   participant Next.js Page
   participant Next.js Server Actions
   participant Data Access Layer (DAL)
-  participant Vercel KV
+  participant Postgres
   participant Uploads folder
   participant Auth0
   participant OpenFGA
@@ -252,7 +256,7 @@ sequenceDiagram;
   Data Access Layer (DAL)--)Auth0: Authentication Check
   Data Access Layer (DAL)--)OpenFGA: Authorization Check for parent folder (user, can_create_file, folder)
   Data Access Layer (DAL)->>Uploads folder: Upload image file
-  Data Access Layer (DAL)->>Vercel KV: Store image metadata
+  Data Access Layer (DAL)->>Postgres: Store image metadata in the database
   Data Access Layer (DAL)--)OpenFGA: Create new tuple (user, owner, file)
   Data Access Layer (DAL)--)OpenFGA: Create new tuple (parent folder, parent, file)
   Data Access Layer (DAL)->>Next.js Server Actions: Return files
@@ -283,15 +287,15 @@ sequenceDiagram;
   participant Next.js Page
   participant Next.js Server Actions
   participant Data Access Layer (DAL)
-  participant Vercel KV
+  participant Postgres
   participant Auth0
   participant OpenFGA
   Next.js Page->>Next.js Server Actions: Request folder action
   Next.js Server Actions->>Data Access Layer (DAL): Pass get folder request
   Data Access Layer (DAL)--)Auth0: Authentication Check
   Data Access Layer (DAL)--)OpenFGA: Authorization Check for folder (user, can_view, folder)
-  Data Access Layer (DAL)->>Vercel KV: Look for fodler metadata in the store
-  Vercel KV->>Data Access Layer (DAL): Return folder metadata
+  Data Access Layer (DAL)->>Postgres: Look for fodler metadata in the database
+  Postgres->>Data Access Layer (DAL): Return folder metadata
   Data Access Layer (DAL)->>Next.js Server Actions: Return folder
   Next.js Server Actions->>Next.js Page: Return folder metadata
 ```
@@ -303,16 +307,16 @@ sequenceDiagram;
   participant Next.js Page
   participant Next.js Server Actions
   participant Data Access Layer (DAL)
-  participant Vercel KV
+  participant Postgres
   participant Auth0
   participant OpenFGA
   Next.js Page->>Next.js Server Actions: Request folders action
   Next.js Server Actions->>Data Access Layer (DAL): Pass get folders request
   Data Access Layer (DAL)--)Auth0: Authentication Check
   Data Access Layer (DAL)--)OpenFGA: Authorization Check for parent folder (user, can_view, parent folder)
-  Data Access Layer (DAL)->>Vercel KV: Look for folders in the store
+  Data Access Layer (DAL)->>Postgres: Look for folders in the database
   Data Access Layer (DAL)--)OpenFGA: Check Authorization for each folders (user, can_view, folder)
-  Vercel KV->>Data Access Layer (DAL): Return folders
+  Postgres->>Data Access Layer (DAL): Return folders
   Data Access Layer (DAL)->>Next.js Server Actions: Return folders
   Next.js Server Actions->>Next.js Page: Return folders
 ```
@@ -324,14 +328,14 @@ sequenceDiagram;
   participant Next.js Page
   participant Next.js Server Actions
   participant Data Access Layer (DAL)
-  participant Vercel KV
+  participant Postgres
   participant Auth0
   participant OpenFGA
   Next.js Page->>Next.js Server Actions: Create folder action
   Next.js Server Actions->>Data Access Layer (DAL): Pass the new folder name and  parent
   Data Access Layer (DAL)--)Auth0: Authentication Check
   Data Access Layer (DAL)--)OpenFGA: Authorization Check for parent folder (user, can_create_folder, parent folder)
-  Data Access Layer (DAL)->>Vercel KV: Store folder data
+  Data Access Layer (DAL)->>Postgres: Store folder data
   Data Access Layer (DAL)--)OpenFGA: Create new tuple (user, owner, folder)
   Data Access Layer (DAL)--)OpenFGA: Create new tuple (parent folder, parent, folder)
   Data Access Layer (DAL)->>Next.js Server Actions: Return folder name
