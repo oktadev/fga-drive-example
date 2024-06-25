@@ -8,6 +8,9 @@ This demo uses both Auth0 ([create a free account here](https://auth0.com)), and
 
 The data is stored in a [Vercel KV store](https://vercel.com/docs/storage/vercel-kv).
 
+> [!NOTE]
+> If you prefer using a PostgreSQL Database, switch to the branch `feature/postgress`
+
 ![A preview of the demo application showing a Google Drive-style interface](./preview.png)
 
 ## 1. Getting Started
