@@ -65,7 +65,7 @@ You can execute the following command to generate a suitable string for the `AUT
 node -e "console.log(crypto.randomBytes(32).toString('hex'))"
 ```
 
-## 3. Okta FGA
+## 3. OpenFGA configuration
 
 In this sample. We are going to use OpenFGA to make access acontrol decisions. If you prefer to use the a managed FGA sertice, you may want to use the `main` branch. Both use the same SDK, so once set up, your application can connect to either choice.
 
