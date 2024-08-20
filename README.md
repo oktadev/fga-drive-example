@@ -67,7 +67,7 @@ node -e "console.log(crypto.randomBytes(32).toString('hex'))"
 
 ## 3. OpenFGA configuration
 
-In this sample. We are going to use OpenFGA to make access acontrol decisions. If you prefer to use the a managed FGA sertice, you may want to use the `main` branch. Both use the same SDK, so once set up, your application can connect to either choice.
+In this sample. We are going to use OpenFGA to make access acontrol decisions. If you prefer to use the a managed FGA service, you may want to use the `main` branch and configure [Okta FGA](https://docs.fga.dev/) instead. Both use the same SDK, so once set up, your application can connect to either choice.
 
 ### OpenFGA
 
