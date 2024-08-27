@@ -4,7 +4,10 @@ This is a simplified Google Drive-style application to demonstrate how to use [O
 
 A user can log in, add files (pictures only), and create folders. Uploaded files are only visible to them by defaullt. They can choose to either share a file directly with other users or share folders (or subfolders), and all files contained within them will be shared automatically. Files can be shared with other users available in the Auth0 tenant; the application will look for them based on their email address.
 
-This demo uses both Auth0 ([create a free account here](https://auth0.com)), and either [OpenFGA](https://openfga.dev).
+This branch uses both Auth0 ([create a free account here](https://auth0.com)), and [OpenFGA](https://openfga.dev).
+
+> [!NOTE]
+> If you prefer using [Okta FGA](https://auth0.com/fine-grained-authorization), switch to the branch `main`
 
 The data is stored in a [Vercel KV store](https://vercel.com/docs/storage/vercel-kv).
 
