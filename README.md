@@ -6,6 +6,9 @@ A user can log in, add files (pictures only), and create folders. Uploaded files
 
 This demo uses both Auth0 ([create a free account here](https://auth0.com)), and either [OpenFGA](https://openfga.dev) or its hosted and managed version [Okta FGA](https://fga.dev).
 
+> [!NOTE]
+> If you prefer using a [OpenFGA](https://openfga.dev), switch to the branch `feature/openfga`
+
 The data is stored in a [Vercel KV store](https://vercel.com/docs/storage/vercel-kv).
 
 > [!NOTE]
