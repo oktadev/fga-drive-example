@@ -9,12 +9,9 @@ export const fgaClient = new OpenFgaClient({
   storeId: process.env.FGA_STORE_ID,
   authorizationModelId: process.env.FGA_AUTHORIZATION_MODEL_ID,
   credentials: {
-    method: CredentialsMethod.ClientCredentials,
+    method: CredentialsMethod.ApiToken,
     config: {
-      apiTokenIssuer: process.env.FGA_API_TOKEN_ISSUER as string,
-      apiAudience: process.env.FGA_API_AUDIENCE as string,
-      clientId: process.env.FGA_CLIENT_ID as string,
-      clientSecret: process.env.FGA_CLIENT_SECRET as string,
+        token: process.env.OPENFGA_AUTHN_PRESHARED_KEY as string
     },
   },
 });

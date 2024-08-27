@@ -4,12 +4,12 @@ This is a simplified Google Drive-style application to demonstrate how to use [O
 
 A user can log in, add files (pictures only), and create folders. Uploaded files are only visible to them by defaullt. They can choose to either share a file directly with other users or share folders (or subfolders), and all files contained within them will be shared automatically. Files can be shared with other users available in the Auth0 tenant; the application will look for them based on their email address.
 
-This demo uses both Auth0 ([create a free account here](https://auth0.com)), and either [OpenFGA](https://openfga.dev) or its hosted and managed version [Okta FGA](https://fga.dev).
-
-The data is stored in a [Vercel KV store](https://vercel.com/docs/storage/vercel-kv).
+This branch uses both Auth0 ([create a free account here](https://auth0.com)), and [OpenFGA](https://openfga.dev).
 
 > [!NOTE]
-> If you prefer using a PostgreSQL Database, switch to the branch `feature/postgress`
+> If you prefer using [Okta FGA](https://auth0.com/fine-grained-authorization), switch to the branch `main`
+
+The data is stored in a [Vercel KV store](https://vercel.com/docs/storage/vercel-kv).
 
 ![A preview of the demo application showing a Google Drive-style interface](./preview.png)
 
@@ -68,35 +68,41 @@ You can execute the following command to generate a suitable string for the `AUT
 node -e "console.log(crypto.randomBytes(32).toString('hex'))"
 ```
 
-## 3. OpenFGA or Okta FGA
+## 3. OpenFGA configuration
 
-You have the choice of using either the open-source OpenFGA or the managed Okta FGA authorization engine to make access control descisions. Both use the same SDK, so once set up, your application can connect to either choice.
+In this sample. We are going to use OpenFGA to make access acontrol decisions. If you prefer to use the a managed FGA service, you may want to use the `main` branch and configure [Okta FGA](https://docs.fga.dev/) instead. Both use the same SDK, so once set up, your application can connect to either choice.
 
 ### OpenFGA
 
 To run your OpenFGA server locally, follow the steps described on [this page](https://openfga.dev/docs/getting-started/setup-openfga/overview).
 
-### Okta FGA
+### OpenFGA Authentication
+In order to run this sample with OpenFGA, you need to configure authentication.
+Please refer [Configuring Authentication](https://openfga.dev/docs/getting-started/setup-openfga/configure-openfga#configuring-authentication) on Documentation.
 
-To use Okta FGA, use your Auth0 account to log in to [dashboard.fga.dev](https://dashboard.fga.dev/).
-
-### OpenFGA / Okta FGA environment
+An easy way to use `Pre-shared Key Authentication` for the authentication. Here's a sample command you can execute for the OpenFGA server (reccomending the change playground's port if a conflict of port occurs.)
 
 ```bash
-# The url of your OpenFGA / Okta FGA server
-FGA_API_URL='https://localhost:8080' or 'https://api.[region].fga.dev'
-# The store ID found in your OpenFGA / Okta FGA Dashboard under settings
+openfga run --playground-port 3001 --authn-method preshared --authn-preshared-keys key1
+```
+
+With the above command, we set the pre-shared key as `key1`. Change the key as necessary.
+
+### OpenFGA environment
+
+```bash
+# The url of your OpenFGA
+FGA_API_URL='https://localhost:8080'
+# The store ID found in your OpenFGA
 FGA_STORE_ID=
-# The authorization model ID found in your OpenFGA / Okta FGA Dashboard under settings. This model ID changes with each change to the model
+# The authorization model ID found in your OpenFGA. This model ID changes with each change to the model
 FGA_AUTHORIZATION_MODEL_ID=
 # The FGA token issuer
-FGA_API_TOKEN_ISSUER='http://localhost:8080' or 'fga.us.auth0.com'
+FGA_API_TOKEN_ISSUER='http://localhost:8080'
 # The API audience
-FGA_API_AUDIENCE='https://localhost:8080' or 'https://api.[region].fga.dev'
-# The client ID found in your OpenFGA / Okta FGA Dashboard under settings
-FGA_CLIENT_ID=
-# The client secret found in your OpenFGA / Okta FGA Dashboard under settings
-FGA_CLIENT_SECRET=
+FGA_API_AUDIENCE='https://localhost:8080'
+# Pre-shared Key for OpenFGA Server's authentication
+OPENFGA_AUTHN_PRESHARED_KEY=
 ```
 
 ### OpenFGA Model
@@ -134,9 +140,9 @@ type folder
     define viewer: [user, user:*] or owner or viewer from parent
 ```
 
-### OpenFGA / Okta FGA checks
+### OpenFGA
 
-The application does the following OpenFGA / Okta FGA checks:
+The application does the following OpenFGA checks:
 
 #### Files
 
