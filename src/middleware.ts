@@ -1,7 +1,17 @@
-import { withMiddlewareAuthRequired } from "@auth0/nextjs-auth0/edge";
+import { auth0Client } from "@/helpers/auth0";
+import { NextRequest, NextResponse } from "next/server";
 
-export default withMiddlewareAuthRequired();
+export async function middleware(req: NextRequest) {
+  const isAuthRoute = req.nextUrl.pathname.startsWith(`/auth`);
+  const isNextInternalRoute = req.nextUrl.pathname.startsWith("/_next");
 
-export const config = {
-  matcher: "/((?!api/auth).*)",
-};
+  if (!isAuthRoute && !isNextInternalRoute) {
+    const session = await auth0Client.getSession();
+    if (!session) {
+      return NextResponse.redirect(new URL("/auth/login", req.url));
+    }
+  }
+
+  const auth0Handler = await auth0Client.handler();
+  return auth0Handler(req);
+}

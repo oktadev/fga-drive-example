@@ -18,7 +18,7 @@ import { writeFile } from "fs/promises";
 import { v4 as uuidv4 } from "uuid";
 
 export async function getFileDTO(
-  fileId: string,
+  fileId: string
 ): Promise<{ file?: StoredFile; error?: unknown }> {
   try {
     if (await !isAuthenticated()) {
@@ -87,9 +87,9 @@ export async function getAllFilesForParentDTO(parent: string): Promise<{
         files: filteredFiles.map((file) => ({
           ...file,
           lastModified: `${new Date(
-            Number(file?.lastModified),
+            Number(file?.lastModified)
           ).toLocaleTimeString()} - ${new Date(
-            Number(file?.lastModified),
+            Number(file?.lastModified)
           ).toLocaleDateString()}`,
         })),
       };
@@ -122,7 +122,7 @@ export async function getAllSharedFilesDTO(): Promise<{
 
     // Get all shared files from our our Vercel Key/Value Store
     const files = await getFilesSubsetFromStore(
-      sharedFiles?.objects?.map((file) => stripObjectName(file)),
+      sharedFiles?.objects?.map((file) => stripObjectName(file))
     );
 
     if (files) {
@@ -130,9 +130,9 @@ export async function getAllSharedFilesDTO(): Promise<{
         files: files?.map((file: StoredFile) => ({
           ...file,
           lastModified: `${new Date(
-            Number(file?.lastModified),
+            Number(file?.lastModified)
           ).toLocaleTimeString()} - ${new Date(
-            Number(file?.lastModified),
+            Number(file?.lastModified)
           ).toLocaleDateString()}`,
         })),
       };
@@ -147,7 +147,7 @@ export async function getAllSharedFilesDTO(): Promise<{
 
 export async function uploadFileDTO(
   parent: string,
-  file: File,
+  file: File
 ): Promise<{ files?: Array<StoredFile>; error?: unknown }> {
   try {
     if (await !isAuthenticated()) {
@@ -210,7 +210,7 @@ export async function uploadFileDTO(
 
 export async function shareFileDTO(
   file: string,
-  email: string,
+  email: string
 ): Promise<{ file?: string; error?: unknown }> {
   try {
     if (await !isAuthenticated()) {

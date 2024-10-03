@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { getUserDTO } from "@/data/user";
+import { auth0Client } from "@/helpers/auth0";
 
 export default async function Header() {
   const { name, picture } = await getUserDTO();
@@ -52,7 +53,7 @@ export default async function Header() {
             <DropdownMenuLabel>{name}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <Link href="/api/auth/logout">Logout</Link>
+              <Link href="/auth/logout">Logout</Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

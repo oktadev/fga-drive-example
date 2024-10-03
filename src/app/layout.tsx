@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import { UserProvider } from "@auth0/nextjs-auth0/client";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { authorizeRootFolder } from "@/app/authorization";
-import { getSession } from "@auth0/nextjs-auth0";
+import { auth0Client } from "@/helpers/auth0";
 
 export const metadata: Metadata = {
   title: "Okta Drive",
@@ -15,7 +14,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getSession();
+  const session = await auth0Client.getSession();
 
   if (session) {
     await authorizeRootFolder(session?.user?.sub);
@@ -23,12 +22,10 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className="min-h-screen">
-      <UserProvider>
-        <body className="min-h-screen">
-          {children}
-          <Toaster />
-        </body>
-      </UserProvider>
+      <body className="min-h-screen">
+        {children}
+        <Toaster />
+      </body>
     </html>
   );
 }

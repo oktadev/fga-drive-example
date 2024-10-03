@@ -1,7 +1,7 @@
-import { getSession } from "@auth0/nextjs-auth0";
+import { auth0Client } from "@/helpers/auth0";
 
-export async function getUserId(): Promise<string> {
-  const session = await getSession();
+export async function getUserId(): Promise<string | undefined> {
+  const session = await auth0Client.getSession();
 
   return session?.user?.sub;
 }
@@ -11,11 +11,11 @@ export async function getUserDTO(): Promise<{
   name: string;
   picture: string;
 }> {
-  const session = await getSession();
+  const session = await auth0Client.getSession();
 
   return {
-    sub: session?.user?.sub,
-    name: session?.user?.name,
-    picture: session?.user?.picture,
+    sub: session?.user?.sub ?? "",
+    name: session?.user?.name ?? "",
+    picture: session?.user?.picture ?? "",
   };
 }

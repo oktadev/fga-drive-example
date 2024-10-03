@@ -3,7 +3,7 @@ export default function Login() {
     <main>
       <div>
         <h1>Login</h1>
-        <a href="/api/auth/login">Login</a>
+        <a href="/auth/login">Login</a>
       </div>
     </main>
   );

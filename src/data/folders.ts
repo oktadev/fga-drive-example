@@ -11,7 +11,7 @@ import {
 import { auth0ManagementClient } from "@/helpers/auth0-management";
 
 export async function getFolderDTO(
-  folderId: string,
+  folderId: string
 ): Promise<{ folder?: { name: string | null; id: string }; error?: unknown }> {
   try {
     if (await !isAuthenticated()) {
@@ -49,7 +49,7 @@ export async function getFolderDTO(
 }
 
 export async function getAllFoldersForParentDTO(
-  parent: string,
+  parent: string
 ): Promise<{ folders?: Array<Folder>; error?: unknown }> {
   try {
     if (await !isAuthenticated()) {
@@ -85,7 +85,7 @@ export async function getAllFoldersForParentDTO(
 export async function createFolderDTO(
   folderId: string,
   parent: string,
-  newFolder: Folder,
+  newFolder: Folder
 ): Promise<{ folder?: Folder; error?: unknown }> {
   try {
     if (await !isAuthenticated()) {
@@ -131,7 +131,7 @@ export async function createFolderDTO(
 
 export async function shareFolderDTO(
   folderId: string,
-  email: string,
+  email: string
 ): Promise<{ folder?: string; error?: unknown }> {
   try {
     if (await !isAuthenticated()) {
