@@ -9,7 +9,7 @@ import { auth0Client } from "@/helpers/auth0";
 export const dynamic = "force-dynamic";
 export const GET = async function (
   request: NextRequest,
-  { params }: { params: { file: string } }
+  { params }: { params: { file: string } },
 ) {
   try {
     const session = await auth0Client.getSession();

@@ -13,9 +13,8 @@ export default async function Page() {
   const parent = userId; // If we're in the root folder, the parent folder is the user's ID
   const { files, error: filesError } = await getFiles(parent);
   const { folders, error: foldersError } = await getFolders(parent);
-  const { folder: currentFolder, error: currentFolderErrror } = await getFolder(
-    parent
-  );
+  const { folder: currentFolder, error: currentFolderErrror } =
+    await getFolder(parent);
 
   return (
     <div className="flex min-h-screen w-full bg-gray-100/40 dark:bg-gray-800/40">
