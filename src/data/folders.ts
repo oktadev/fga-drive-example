@@ -8,7 +8,7 @@ import {
   getFolderFromStore,
   getFoldersFromStore,
 } from "@/store/folders";
-import { auth0ManagementClient } from "@/helpers/auth0-management";
+import { auth0ManagementClient } from "@/lib/auth0-management";
 
 export async function getFolderDTO(
   folderId: string,

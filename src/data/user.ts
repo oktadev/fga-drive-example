@@ -1,4 +1,4 @@
-import { auth0Client } from "@/helpers/auth0";
+import { auth0Client } from "@/lib/auth0";
 
 export async function getUserId(): Promise<string | undefined> {
   const session = await auth0Client.getSession();

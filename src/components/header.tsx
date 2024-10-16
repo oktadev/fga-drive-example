@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { getUserDTO } from "@/data/user";
-import { auth0Client } from "@/helpers/auth0";
+import { auth0Client } from "@/lib/auth0";
 
 export default async function Header() {
   const { name, picture } = await getUserDTO();

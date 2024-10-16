@@ -4,7 +4,7 @@ import mime from "mime";
 import { NextRequest, NextResponse } from "next/server";
 import { getFile } from "@/app/actions";
 import { fgaClient } from "@/app/authorization";
-import { auth0Client } from "@/helpers/auth0";
+import { auth0Client } from "@/lib/auth0";
 
 export const dynamic = "force-dynamic";
 export const GET = async function (

@@ -10,7 +10,7 @@ import {
   getFilesSubsetFromStore,
 } from "@/store/files";
 import { isAuthenticated } from "@/app/authentication";
-import { auth0ManagementClient } from "@/helpers/auth0-management";
+import { auth0ManagementClient } from "@/lib/auth0-management";
 import { extname } from "path";
 import { getFileHash } from "@/helpers/hash";
 import { Hash } from "crypto";

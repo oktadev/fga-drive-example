@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { authorizeRootFolder } from "@/app/authorization";
-import { auth0Client } from "@/helpers/auth0";
+import { auth0Client } from "@/lib/auth0";
 
 export const metadata: Metadata = {
   title: "Okta Drive",

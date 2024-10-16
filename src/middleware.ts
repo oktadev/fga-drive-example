@@ -1,17 +1,16 @@
-import { auth0Client } from "@/helpers/auth0";
+import { auth0Client } from "@/lib/auth0";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function middleware(req: NextRequest) {
-  const isAuthRoute = req.nextUrl.pathname.startsWith(`/auth`);
-  const isNextInternalRoute = req.nextUrl.pathname.startsWith("/_next");
+export async function middleware(request: NextRequest) {
+  const isAuthRoute = request.nextUrl.pathname.startsWith(`/auth`);
+  const isNextInternalRoute = request.nextUrl.pathname.startsWith("/_next");
 
   if (!isAuthRoute && !isNextInternalRoute) {
     const session = await auth0Client.getSession();
     if (!session) {
-      return NextResponse.redirect(new URL("/auth/login", req.url));
+      return NextResponse.redirect(new URL("/auth/login", request.url));
     }
   }
 
-  const auth0Handler = await auth0Client.handler();
-  return auth0Handler(req);
+  return await auth0Client.middleware(request);
 }
